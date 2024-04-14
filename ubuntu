@@ -1,11 +1,19 @@
-#!/usr/bin/env zsh
-if [[ -z $STOW_FOLDERS ]]; then
-    STOW_FOLDERS="bin,i3,netflix,nvim,personal,tmux,uwuntu,xkb,zsh"
-fi
+#!/usr/bin/bash
 
-if [[ -z $DOTFILES ]]; then
-    DOTFILES=$HOME/.dotfiles
-fi
+set -e
+echo "Installing dependencies..."
+apt-get update
+apt-get install zsh curl stow git ripgrep fzf vim wget -y
 
-STOW_FOLDERS=$STOW_FOLDERS DOTFILES=$DOTFILES $DOTFILES/install
+echo "Installing neovim"
+wget -P /tmp https://github.com/neovim/neovim/releases/download/v0.9.0/nvim.appimage && chmod u+x /tmp/nvim.appimage && /tmp/nvim.appimage --appimage-extract && sudo mv squashfs-root /opt/nvim && sudo ln -s /opt/nvim/AppRun /usr/local/bin/nvim
 
+echo "Installing dotfiles"
+./install-dotfiles
+
+echo "Installing Oh My Zsh"
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+source ~/.zshrc
+
+set +e

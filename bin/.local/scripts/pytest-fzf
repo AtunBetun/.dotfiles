@@ -1,0 +1,23 @@
+#!/usr/bin/zsh
+
+function quick_collect_pytests() {
+    RES=$(rg "^def (test_.*)\(" --no-heading)
+
+    IFS=$'\n'
+    for res in $RES; do
+      echo $res | awk '{
+        if (match($0, /(.*test_.*):def (.*)\(/, groups)) {
+          print groups[1] "::" groups[2]
+        }
+      }'
+    done
+}
+
+TEST=$(quick_collect_pytests | fzf)
+CMD="poetry run pytest $TEST -rP"
+
+echo $CMD | xclip -selection clipboard
+
+echo $CMD
+poetry run pytest $TEST -rP
+print -s $CMD

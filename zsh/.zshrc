@@ -1,5 +1,4 @@
 # If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -8,7 +7,7 @@ export ZSH="$HOME/.oh-my-zsh"
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="robbyrussell"
+ZSH_THEME="crcandy"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -70,7 +69,7 @@ ZSH_THEME="robbyrussell"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
+plugins=(git asdf docker zsh-autosuggestions)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -99,40 +98,27 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-source ~/.zsh_profile
+# append completions to fpath
+fpath=(${ASDF_DIR}/completions $fpath ~/.zsh-completions)
+# initialise completions with ZSH's compinit
+autoload -Uz compinit && compinit
 
-alias luamake=/home/mpaulson/personal/lua-language-server/3rd/luamake/luamake
+export GPG_TTY=$(tty)
+export PATH=$PATH:~/.local/bin
 
-# bun completions
-[ -s "/home/mpaulson/.bun/_bun" ] && source "/home/mpaulson/.bun/_bun"
+bindkey -v
+bindkey ^R history-incremental-search-backward 
+bindkey ^S history-incremental-search-forward
+export VI_MODE_SET_CURSOR=true
+export PATH=$PATH:/usr/local/go/bin
 
-# Bun
-export BUN_INSTALL="/home/mpaulson/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
+alias vim="nvim"
+alias cpwd="pwd | xclip -selection clipboard"
 
-# Bun
-export BUN_INSTALL="/home/mpaulson/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
+autoload -U +X bashcompinit && bashcompinit
 
-# pnpm
-export PNPM_HOME="/home/mpaulson/.local/share/pnpm"
-export PATH="$PNPM_HOME:$PATH"
-# pnpm end
-# Turso
-export PATH="/home/mpaulson/.turso:$PATH"
+export PATH=$PATH:~/.local/share/nvim/mason/bin
+complete -C '/usr/local/bin/aws_completer' aws
 
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/mpaulson/.local/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/home/mpaulson/.local/anaconda3/etc/profile.d/conda.sh" ]; then
-        . "/home/mpaulson/.local/anaconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="/home/mpaulson/.local/anaconda3/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
-
+export NODE_TLS_REJECT_UNAUTHORIZED=1
+export NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/ZscalerRootCertificate-2048-SHA256.crt

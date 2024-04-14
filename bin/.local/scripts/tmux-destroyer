@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+if [[ $# -eq 1 ]]; then
+    selected=$1
+else
+    selected=$(tmux list-sessions | awk '{print $1}' | sed 's/://g' | fzf --height=90% --border=sharp --prompt='Destroy Tmux Session > ')
+fi
+
+if [[ -z $selected ]]; then
+    exit 0
+fi
+
+tmux_running=$(pgrep tmux)
+
+if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
+    exit 0
+fi
+
+if tmux has-session -t=$selected; then
+    tmux kill-session -t $selected
+    exit 0
+fi

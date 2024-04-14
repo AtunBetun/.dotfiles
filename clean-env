@@ -8,3 +8,5 @@ do
     stow -D $folder
 done
 popd
+
+rm -rf ~/.oh-my-zsh
