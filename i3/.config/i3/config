@@ -217,10 +217,10 @@ bindsym $mod+Shift+n exec --no-startup-id ~/dotfiles/bin/resolution
 
 # FKeys
 # Pulse Audio controls
-bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume 0 +5% #increase sound volume
-bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume 0 -5% #decrease sound volume
-bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 0 toggle # mute sound
-#
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5% #increase sound volume
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5% #decrease sound volume
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle # mute sound
+
 # # Sreen brightness controls
 bindsym XF86MonBrightnessUp exec xbacklight -inc 20 # increase screen brightness
 bindsym XF86MonBrightnessDown exec xbacklight -dec 20 # decrease screen brightness
@@ -229,8 +229,8 @@ bindsym XF86MonBrightnessDown exec xbacklight -dec 20 # decrease screen brightne
 bindsym $mod+Shift+comma exec ~/.config/i3/scripts/alsa restore
 bindsym $mod+semicolon exec ~/.config/i3/scripts/alsa down Headphone
 bindsym $mod+comma exec ~/.config/i3/scripts/alsa up Headphone
-bindsym $mod+m move workspace to output left
+#bindsym $mod+m move workspace to output left
 
-# Suspend
-bindsym $mod+Shift+period exec systemctl suspend
+# Lock
+bindsym $mod+Shift+period exec i3lock -c 000000; exec systemctl suspend
 

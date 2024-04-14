@@ -69,7 +69,7 @@ ZSH_THEME="crcandy"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git asdf docker zsh-autosuggestions)
+plugins=(git asdf docker)
 
 source $ZSH/oh-my-zsh.sh
 
