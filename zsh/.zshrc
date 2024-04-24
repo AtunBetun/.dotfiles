@@ -103,7 +103,6 @@ fpath=(${ASDF_DIR}/completions $fpath ~/.zsh-completions)
 # initialise completions with ZSH's compinit
 autoload -Uz compinit && compinit
 
-export GPG_TTY=$(tty)
 export PATH=$PATH:~/.local/bin
 
 bindkey -v
@@ -119,6 +118,3 @@ autoload -U +X bashcompinit && bashcompinit
 
 export PATH=$PATH:~/.local/share/nvim/mason/bin
 complete -C '/usr/local/bin/aws_completer' aws
-
-export NODE_TLS_REJECT_UNAUTHORIZED=1
-export NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/ZscalerRootCertificate-2048-SHA256.crt
