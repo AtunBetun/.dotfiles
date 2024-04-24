@@ -118,3 +118,4 @@ autoload -U +X bashcompinit && bashcompinit
 
 export PATH=$PATH:~/.local/share/nvim/mason/bin
 complete -C '/usr/local/bin/aws_completer' aws
+export PATH="/usr/local/sbin:$PATH"
