@@ -122,3 +122,4 @@ complete -C '/usr/local/bin/aws_completer' aws
 
 export NODE_TLS_REJECT_UNAUTHORIZED=1
 export NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/ZscalerRootCertificate-2048-SHA256.crt
+export PATH="/usr/local/sbin:$PATH"
