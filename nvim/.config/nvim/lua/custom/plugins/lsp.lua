@@ -43,6 +43,7 @@ return {
 			gopls = {},
 			pyright = {},
 			rust_analyzer = {},
+			tailwindcss = {},
 			lua_ls = {
 				-- cmd = {...},
 				-- filetypes = { ...},
@@ -69,6 +70,7 @@ return {
 			"dockerls",
 			"gopls",
 			"tsserver",
+			"tailwindcss",
 		})
 		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
