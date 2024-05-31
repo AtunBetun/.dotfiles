@@ -121,3 +121,11 @@ complete -C '/usr/local/bin/aws_completer' aws
 export PATH="/usr/local/sbin:$PATH"
 
 alias killbg='kill -KILL ${${(v)jobstates##*:*:}%=*}'
+
+zstyle ':completion:*' menu select
+fpath+=~/.zfunc
+
+
+export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ZscalerRootCertificate-2048-SHA256.pem
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
