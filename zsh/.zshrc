@@ -109,15 +109,20 @@ bindkey -v
 bindkey ^R history-incremental-search-backward 
 bindkey ^S history-incremental-search-forward
 export VI_MODE_SET_CURSOR=true
-export PATH=$PATH:/usr/local/go/bin
 
 alias vim="nvim"
 alias cpwd="pwd | xclip -selection clipboard"
 
 autoload -U +X bashcompinit && bashcompinit
 
-export PATH=$PATH:~/.local/share/nvim/mason/bin
 complete -C '/usr/local/bin/aws_completer' aws
-export PATH="/usr/local/sbin:$PATH"
+
+export PATH=$PATH:~/.local/share/nvim/mason/bin
+export PATH=$PATH:/usr/local/go/bin
+export PATH=$PATH:/usr/local/sbin
+export PATH=$PATH:/usr/local/sbin
+export PATH=$PATH:~/.local/scripts
 
 alias killbg='kill -KILL ${${(v)jobstates##*:*:}%=*}'
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
