@@ -27,6 +27,7 @@ return {
 
 		pcall(require("telescope").load_extension, "fzf")
 		pcall(require("telescope").load_extension, "ui-select")
+		pcall(require("telescope").load_extension, "git_worktree")
 
 		local builtin = require("telescope.builtin")
 		vim.keymap.set("n", "<leader>sh", builtin.help_tags, { desc = "[S]earch [H]elp" })
@@ -40,6 +41,20 @@ return {
 		vim.keymap.set("n", "<leader>sr", builtin.resume, { desc = "[S]earch [R]esume" })
 		vim.keymap.set("n", "<leader>s.", builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
 		vim.keymap.set("n", "<leader><leader>", builtin.buffers, { desc = "[ ] Find existing buffers" })
+
+		vim.keymap.set(
+			"n",
+			"<leader>wl",
+			":lua require('telescope').extensions.git_worktree.git_worktrees()<CR>",
+			{ desc = "[W]ork Tree [L]ist" }
+		)
+
+		vim.keymap.set(
+			"n",
+			"<leader>wc",
+			":lua require('telescope').extensions.git_worktree.create_git_worktree()<CR>",
+			{ desc = "[W]ork Tree [C]reate" }
+		)
 
 		-- Slightly advanced example of overriding default behavior and theme
 		vim.keymap.set("n", "<leader>/", function()

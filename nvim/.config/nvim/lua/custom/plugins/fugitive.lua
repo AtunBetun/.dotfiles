@@ -21,13 +21,13 @@ return {
 				end, opts)
 
 				-- rebase always
-				vim.keymap.set("n", "<leader>P", function()
-					vim.cmd.Git({ "pull", "--rebase" })
-				end, opts)
+				vim.keymap.set("n", "<leader>P", ":Git pull --rebase<CR>", opts)
 
 				-- NOTE: It allows me to easily set the branch i am pushing and any tracking
 				-- needed if i did not set the branch up correctly
 				vim.keymap.set("n", "<leader>t", ":Git push -u origin ", opts)
+
+				vim.keymap.set("n", "<leader>l", ":Git log --oneline --graph --decorate --all<CR>", opts)
 			end,
 		})
 

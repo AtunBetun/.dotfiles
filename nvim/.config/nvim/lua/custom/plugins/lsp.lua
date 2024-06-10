@@ -44,6 +44,7 @@ return {
 			pyright = {},
 			rust_analyzer = {},
 			tailwindcss = {},
+			dockerls = {},
 			lua_ls = {
 				-- cmd = {...},
 				-- filetypes = { ...},
