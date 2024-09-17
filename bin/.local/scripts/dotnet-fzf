@@ -1,0 +1,10 @@
+#!/usr/bin/zsh
+
+TEST=$(dotnet test -t --no-build | awk '/The following Tests/{y=1;next}y' | sed 's/^[ \t]*//' | fzf)
+CMD="dotnet test --filter \"FullyQualifiedName=$TEST\" -l \"console;verbosity=detailed\""
+
+echo $CMD | xclip -selection clipboard
+
+echo $CMD
+dotnet test --filter "FullyQualifiedName=$TEST" -l "console;verbosity=detailed"
+print -s $CMD
