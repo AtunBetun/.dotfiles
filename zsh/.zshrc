@@ -112,6 +112,7 @@ export VI_MODE_SET_CURSOR=true
 
 alias vim="nvim"
 alias cpwd="pwd | xclip -selection clipboard"
+alias df="dotnet-fzf"
 
 autoload -U +X bashcompinit && bashcompinit
 
@@ -126,3 +127,4 @@ export PATH=$PATH:~/.local/scripts
 alias killbg='kill -KILL ${${(v)jobstates##*:*:}%=*}'
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+. ~/.asdf/plugins/dotnet/set-dotnet-env.zsh

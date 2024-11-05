@@ -29,6 +29,11 @@ return {
 			python = { "black" },
 			json = { "jq" },
 			bash = { "shfmt" },
+			cs = { "csharpier" },
+			groovy = { "npm-groovy-lint" },
+			sh = { "shfmt" },
+			xml = { "xmlformat" },
+			terraform = { "terraform fmt" },
 			--
 			-- You can use a sub-list to tell conform to run *until* a formatter
 			-- is found.
