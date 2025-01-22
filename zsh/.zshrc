@@ -30,6 +30,7 @@ export PATH=$PATH:/usr/local/go/bin
 export PATH=$PATH:/usr/local/sbin
 export PATH=$PATH:/usr/local/sbin
 export PATH=$PATH:~/.local/scripts
+export PATH="$PATH:/opt/nvim-linux64/bin"
 
 alias killbg='kill -KILL ${${(v)jobstates##*:*:}%=*}'
 
