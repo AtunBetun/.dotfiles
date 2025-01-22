@@ -1,8 +1,8 @@
 return {
 	{
 		"Decodetalkers/csharpls-extended-lsp.nvim",
+		"Decodetalkers/csharpls-extended-lsp.nvim",
 	},
-
 	{
 		"neovim/nvim-lspconfig",
 		dependencies = {
@@ -58,14 +58,13 @@ return {
 				dockerls = {},
 
 				csharp_ls = {
-					handlers = {
-						["textDocument/definition"] = require("csharpls_extended").handler,
-						["textDocument/typeDefinition"] = require("csharpls_extended").handler,
-					},
-
-					on_attach = function(_, bufnr)
-						vim.keymap.set("n", "gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to definition" })
-					end,
+					-- handlers = {
+					-- 	["textDocument/definition"] = require("csharpls_extended").handler,
+					-- 	["textDocument/typeDefinition"] = require("csharpls_extended").handler,
+					-- },
+					-- on_attach = function(_, bufnr)
+					-- 	vim.keymap.set("n", "gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to definition" })
+					-- end,
 				},
 				robotframework_ls = {},
 				lua_ls = {
@@ -91,9 +90,11 @@ return {
 				"black",
 				"csharp_ls",
 				"pyright",
+				"ruff",
+				"terraform-ls",
 				"dockerls",
 				"gopls",
-				"tsserver",
+				-- "tsserver",
 				"tailwindcss",
 			})
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
