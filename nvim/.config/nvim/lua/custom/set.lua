@@ -6,6 +6,8 @@ vim.g.have_nerd_font = true
 -- Make line numbers default
 vim.opt.nu = true
 vim.opt.relativenumber = true
+vim.o.statuscolumn = "%s %l %r"
+
 vim.opt.tabstop = 4
 vim.opt.expandtab = true
 vim.opt.softtabstop = 4
