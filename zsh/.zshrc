@@ -2,7 +2,7 @@ export ZSH="$HOME/.oh-my-zsh"
 
 ZSH_THEME="crcandy"
 
-plugins=(git asdf docker)
+plugins=(git docker)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -20,6 +20,7 @@ export VI_MODE_SET_CURSOR=true
 alias vim="nvim"
 alias cpwd="pwd | xclip -selection clipboard"
 alias df="dotnet-fzf"
+alias docker="podman"
 
 autoload -U +X bashcompinit && bashcompinit
 
@@ -37,3 +38,16 @@ alias killbg='kill -KILL ${${(v)jobstates##*:*:}%=*}'
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 . ~/.asdf/plugins/dotnet/set-dotnet-env.zsh
 . ~/.asdf/plugins/golang/set-env.zsh
+
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+mkdir -p "${ASDF_DATA_DIR:-$HOME/.asdf}/completions"
+asdf completion zsh > "${ASDF_DATA_DIR:-$HOME/.asdf}/completions/_asdf"
+
+fpath=(${ASDF_DATA_DIR:-$HOME/.asdf}/completions $fpath)
+autoload -Uz compinit && compinit
+
+if [ -e /home/bxuser/.nix-profile/etc/profile.d/nix.sh ]; then . /home/bxuser/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
+export NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/ZscalerRootCertificate-2048-SHA256.crt
+
+# added by Snowflake SnowSQL installer
+export PATH=/home/bxuser/bin:$PATH
