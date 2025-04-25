@@ -1,8 +1,8 @@
 return {
-	{
-		"Decodetalkers/csharpls-extended-lsp.nvim",
-		"Decodetalkers/csharpls-extended-lsp.nvim",
-	},
+	-- {
+	-- 	"Decodetalkers/csharpls-extended-lsp.nvim",
+	-- 	"Decodetalkers/csharpls-extended-lsp.nvim",
+	-- },
 	{
 		"neovim/nvim-lspconfig",
 		dependencies = {
@@ -57,15 +57,15 @@ return {
 				tailwindcss = {},
 				dockerls = {},
 
-				csharp_ls = {
-					-- handlers = {
-					-- 	["textDocument/definition"] = require("csharpls_extended").handler,
-					-- 	["textDocument/typeDefinition"] = require("csharpls_extended").handler,
-					-- },
-					-- on_attach = function(_, bufnr)
-					-- 	vim.keymap.set("n", "gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to definition" })
-					-- end,
-				},
+				-- csharp_ls = {
+				-- 	-- handlers = {
+				-- 	-- 	["textDocument/definition"] = require("csharpls_extended").handler,
+				-- 	-- 	["textDocument/typeDefinition"] = require("csharpls_extended").handler,
+				-- 	-- },
+				-- 	-- on_attach = function(_, bufnr)
+				-- 	-- 	vim.keymap.set("n", "gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to definition" })
+				-- 	-- end,
+				-- },
 				robotframework_ls = {},
 				lua_ls = {
 					-- cmd = {...},

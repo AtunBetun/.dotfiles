@@ -25,11 +25,10 @@ return {
 		end,
 		formatters_by_ft = {
 			lua = { "stylua" },
-			-- Conform can also run multiple formatters sequentially
 			python = { "black" },
 			json = { "jq" },
 			bash = { "shfmt" },
-			cs = { "csharpier" },
+			cs = { "/home/atunbetun/.dotnet/tools/dotnet-csharpier" },
 			groovy = { "npm-groovy-lint" },
 			sh = { "shfmt" },
 			xml = { "xmlformat" },
