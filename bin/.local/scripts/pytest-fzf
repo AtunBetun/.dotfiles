@@ -5,11 +5,7 @@ function quick_collect_pytests() {
 
     IFS=$'\n'
     for res in $RES; do
-      echo $res | awk '{
-        if (match($0, /(.*test_.*):def (.*)\(/, groups)) {
-          print groups[1] "::" groups[2]
-        }
-      }'
+      echo "$res" | awk -F ':def ' '{print $1 "::" $2}' | awk -F '\(' '{print $1}'
     done
 }
 

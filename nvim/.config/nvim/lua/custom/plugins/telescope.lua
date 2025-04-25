@@ -18,6 +18,11 @@ return {
 	},
 	config = function()
 		require("telescope").setup({
+			defaults = {
+				cache_picker = {
+					num_pickers = 15,
+				},
+			},
 			extensions = {
 				["ui-select"] = {
 					require("telescope.themes").get_dropdown(),
@@ -41,6 +46,7 @@ return {
 		vim.keymap.set("n", "<leader>sq", builtin.quickfix, { desc = "[S]earch [Q]uickfix" })
 		vim.keymap.set("n", "<leader>sr", builtin.resume, { desc = "[S]earch [R]esume" })
 		vim.keymap.set("n", "<leader>s.", builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
+		vim.keymap.set("n", "<leader>sp", builtin.pickers, { desc = "[S]earch [P]icker" })
 		vim.keymap.set("n", "<leader><leader>", builtin.buffers, { desc = "[ ] Find existing buffers" })
 
 		vim.keymap.set(

@@ -32,5 +32,8 @@ vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" }
 
 -- next greatest remap ever : asbjornHaland
 -- chat gpt cooking
-vim.keymap.set({ "n", "v" }, "<leader>y", [[:w !xclip -selection clipboard<CR><CR>]])
-vim.keymap.set("n", "<leader>Y", [[:w !xclip -selection clipboard<CR><CR>]])
+-- vim.keymap.set({ "n", "v" }, "<leader>y", [[:w !xclip -selection clipboard<CR><CR>]])
+-- vim.keymap.set("n", "<leader>Y", [[:w !xclip -selection clipboard<CR><CR>]])
+
+vim.keymap.set({ "n", "v" }, "<leader>y", [["+y]])
+vim.keymap.set("n", "<leader>Y", [["+Y]])

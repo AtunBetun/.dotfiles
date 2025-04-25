@@ -48,6 +48,14 @@ return {
 					end
 				end,
 			})
+
+			-- vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+			-- 	pattern = "*.gitlab-ci*.{yml,yaml}",
+			-- 	callback = function()
+			-- 		vim.bo.filetype = "yaml.gitlab"
+			-- 	end,
+			-- })
+
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
 			capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 			local servers = {
@@ -56,15 +64,17 @@ return {
 				rust_analyzer = {},
 				tailwindcss = {},
 				dockerls = {},
+				gitlab_ci_ls = {},
+				-- sql_language_server = {},
 
 				csharp_ls = {
-					-- handlers = {
-					-- 	["textDocument/definition"] = require("csharpls_extended").handler,
-					-- 	["textDocument/typeDefinition"] = require("csharpls_extended").handler,
-					-- },
-					-- on_attach = function(_, bufnr)
-					-- 	vim.keymap.set("n", "gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to definition" })
-					-- end,
+					handlers = {
+						["textDocument/definition"] = require("csharpls_extended").handler,
+						["textDocument/typeDefinition"] = require("csharpls_extended").handler,
+					},
+					on_attach = function(_, bufnr)
+						vim.keymap.set("n", "gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to definition" })
+					end,
 				},
 				robotframework_ls = {},
 				lua_ls = {
