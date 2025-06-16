@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+echo "Installing neovim"
+
+sudo rm -rf /opt/nvim
+sudo rm -rf /usr/local/bin/nvim
+
+wget -P /tmp https://github.com/neovim/neovim/releases/download/v0.10.0/nvim.appimage && sudo chmod u+x /tmp/nvim.appimage && /tmp/nvim.appimage --appimage-extract && sudo mv squashfs-root /opt/nvim && sudo ln -s /opt/nvim/AppRun /usr/local/bin/nvim

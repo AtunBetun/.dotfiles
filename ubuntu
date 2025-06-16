@@ -1,23 +1,10 @@
 #!/usr/bin/bash
 
 set -e
-echo "Installing dependencies..."
-sudo apt-get update
-sudo apt-get install zsh curl stow git ripgrep vim wget -y
 
-
-echo "Installing neovim"
-wget -P /tmp https://github.com/neovim/neovim/releases/download/v0.9.0/nvim.appimage && chmod u+x /tmp/nvim.appimage && /tmp/nvim.appimage --appimage-extract && sudo mv squashfs-root /opt/nvim && sudo ln -s /opt/nvim/AppRun /usr/local/bin/nvim
-
-echo "Installing dotfiles"
-./install-dotfiles
-
-echo "Installing Oh My Zsh"
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-~/.fzf/install
-
-source ~/.zshrc
+./modules/dependencies
+./modules/fzf
+./modules/nvim
+./modules/ohmyzsh
 
 set +e
