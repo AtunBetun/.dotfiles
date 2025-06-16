@@ -2,7 +2,7 @@
 
 echo "Installing dependencies..."
 sudo apt-get update
-sudo apt-get install zsh curl stow git ripgrep vim wget curl git gpg pass build-essential -y
+sudo apt-get install zsh curl stow git ripgrep vim wget curl git gpg pass build-essential zlib1g zlib1g-dev -y
 
 sudo dnf install \
       gcc gcc-c++ gdb lzma glibc-devel libstdc++-devel openssl-devel \
