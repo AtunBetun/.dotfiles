@@ -20,7 +20,6 @@ export VI_MODE_SET_CURSOR=true
 alias vim="nvim"
 alias cpwd="pwd | xclip -selection clipboard"
 alias df="dotnet-fzf"
-alias docker="podman"
 
 autoload -U +X bashcompinit && bashcompinit
 
