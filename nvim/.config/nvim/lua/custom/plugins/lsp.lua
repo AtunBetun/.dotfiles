@@ -64,18 +64,17 @@ return {
 				rust_analyzer = {},
 				tailwindcss = {},
 				dockerls = {},
-				gitlab_ci_ls = {},
 				-- sql_language_server = {},
 
-				csharp_ls = {
-					handlers = {
-						["textDocument/definition"] = require("csharpls_extended").handler,
-						["textDocument/typeDefinition"] = require("csharpls_extended").handler,
-					},
-					on_attach = function(_, bufnr)
-						vim.keymap.set("n", "gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to definition" })
-					end,
-				},
+				-- csharp_ls = {
+				-- 	handlers = {
+				-- 		["textDocument/definition"] = require("csharpls_extended").handler,
+				-- 		["textDocument/typeDefinition"] = require("csharpls_extended").handler,
+				-- 	},
+				-- 	on_attach = function(_, bufnr)
+				-- 		vim.keymap.set("n", "gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to definition" })
+				-- 	end,
+				-- },
 				robotframework_ls = {},
 				lua_ls = {
 					-- cmd = {...},
@@ -98,7 +97,7 @@ return {
 			vim.list_extend(ensure_installed, {
 				"stylua",
 				"black",
-				"csharp_ls",
+				-- "csharp_ls",
 				"pyright",
 				"ruff",
 				"terraform-ls",

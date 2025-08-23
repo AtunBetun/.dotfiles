@@ -3,7 +3,7 @@
 if [[ $# -eq 1 ]]; then
     selected=$1
 else
-    selected=$(tmux list-sessions | awk '{print $1}' | sed 's/://g' | fzf --height=90% -m --border=sharp --prompt='Destroy Tmux Session > ')
+    selected=$(tmux list-sessions | awk '{print $1}' | sed 's/://g' | /Users/albertodesaintmalo/.fzf/bin/fzf --height=90% -m --border=sharp --prompt='Destroy Tmux Session > ')
 fi
 
 if [[ -z $selected ]]; then

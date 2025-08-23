@@ -1,9 +1,9 @@
-#!/usr/bin/env zsh
+#!/opt/homebrew/bin/zsh
 
 if [[ $# -eq 1 ]]; then
     selected=$1
 else
-    selected=$(find  ~/ ~/work ~/personal -mindepth 1 -maxdepth 1 -type d | fzf --height=90% --border=sharp --prompt='Open Tmux Session > ' --preview='tree -C {}' --preview-window='45%,border-sharp')
+    selected=$(find  ~/ ~/work -mindepth 1 -maxdepth 1 -type d | /Users/albertodesaintmalo/.fzf/bin/fzf --height=90% --border=sharp --prompt='Open Tmux Session > ' --preview='tree -C {}' --preview-window='45%,border-sharp')
 fi
 
 if [[ -z $selected ]]; then

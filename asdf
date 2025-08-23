@@ -1,0 +1,17 @@
+#!/usr/bin/bash
+echo "Installing asdf"
+
+sudo rm -rf /tmp/asdf
+sudo rm -rf /usr/local/bin/asdf
+
+wget -P /tmp https://github.com/asdf-vm/asdf/releases/download/v0.18.0/asdf-v0.18.0-linux-amd64.tar.gz
+tar -xvf /tmp/asdf-v0.18.0-linux-amd64.tar.gz -C /tmp
+sudo cp /tmp/asdf /usr/local/bin/asdf
+asdf --version
+
+asdf plugin add python https://github.com/asdf-community/asdf-python.git
+asdf plugin add dotnet https://github.com/hensou/asdf-dotnet.git
+asdf plugin-add terraform https://github.com/asdf-community/asdf-hashicorp.git
+asdf plugin add poetry https://github.com/asdf-community/asdf-poetry.git
+asdf plugin add golang https://github.com/asdf-community/asdf-golang.git
+asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
