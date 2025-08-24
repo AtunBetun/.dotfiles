@@ -1,0 +1,9 @@
+# This is Git's per-user configuration file.
+[user]
+	name = Alberto De Saint Malo
+	email = beto7299@gmail.com
+[credential]
+	helper = 
+	helper = /usr/local/share/gcm-core/git-credential-manager
+[credential "https://dev.azure.com"]
+	useHttpPath = true
