@@ -3,4 +3,4 @@
 echo "Installing dependencies..."
 brew install zsh curl stow git ripgrep vim wget gpg pass \
   gcc gdb lcov pkg-config bzip2 libffi gdbm xz ncurses \
-  readline sqlite openssl@3 util-linux zstd kitty
+  readline sqlite openssl@3 util-linux zstd kitty git-credential-manager gpg pass
