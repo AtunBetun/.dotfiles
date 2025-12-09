@@ -1,8 +1,13 @@
 #!/usr/bin/env zsh
 
-my_array=("bin" "i3" "nvim" "tmux" "zsh")
+# Only include packages that actually exist
+my_array=("bin" "nvim" "tmux" "zsh")
 
 for item in "${my_array[@]}"; do
-	echo "Removing $item"
-	stow -D "$item"
+	if [[ -d "$item" ]]; then
+		echo "Removing $item"
+		stow -D "$item" -t "$HOME"
+	else
+		echo "Skipping $item (directory not found)"
+	fi
 done

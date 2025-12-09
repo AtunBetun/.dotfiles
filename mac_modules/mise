@@ -1,0 +1,12 @@
+#!/bin/bash
+echo "Installing mise"
+brew install mise
+mise --version
+
+mise use -g python@latest
+mise use -g dotnet@latest
+mise use -g terraform@latest
+mise use -g poetry@latest
+mise use -g go@latest
+mise use -g node@latest
+mise use -g neovim@0.10.4

@@ -1,9 +1,12 @@
-#!/opt/homebrew/bin/zsh
+#!/usr/bin/zsh
+set -x
+
+eval "$(mise activate zsh)"
 
 if [[ $# -eq 1 ]]; then
     selected=$1
 else
-    selected=$(find  ~/ ~/work -mindepth 1 -maxdepth 1 -type d | /Users/albertodesaintmalo/.fzf/bin/fzf --height=90% --border=sharp --prompt='Open Tmux Session > ' --preview='tree -C {}' --preview-window='45%,border-sharp')
+    selected=$(find  ~/ /workplace/adesain /workplace -mindepth 1 -maxdepth 1 -type d | fzf --height=90% --border=sharp --prompt='Open Tmux Session > ' --preview='tree -C {}' --preview-window='45%,border-sharp')
 fi
 
 if [[ -z $selected ]]; then
