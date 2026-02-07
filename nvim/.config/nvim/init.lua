@@ -1,5 +1,9 @@
 require("custom.set")
 require("custom.remap")
+-- require("osc52")
+
+-- Add relative line numbers to netrw
+vim.g.netrw_bufsettings = "noma nomod nu rnu nobl nowrap ro"
 
 vim.api.nvim_create_autocmd("TextYankPost", {
 	desc = "Highlight when yanking (copying) text",
@@ -12,8 +16,8 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 -- vim.g.clipboard = {
 -- 	name = "XclipClipboard",
 -- 	copy = {
--- 		["+"] = "xclip -selection clipboard",
--- 		["*"] = "xclip -selection primary",
+-- 		["+"] = "xclip -in -selection clipboard",
+-- 		["*"] = "xclip -in -selection primary",
 -- 	},
 -- 	paste = {
 -- 		["+"] = "xclip -selection clipboard -o",
@@ -21,6 +25,19 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 -- 	},
 -- 	cache_enabled = 0,
 -- }
+
+vim.g.clipboard = {
+  name = 'OSC 52',
+  copy = {
+    ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+    ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+  },
+  paste = {
+    ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
+    ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
+  },
+}
+
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then

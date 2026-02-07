@@ -37,3 +37,14 @@ vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" }
 
 vim.keymap.set({ "n", "v" }, "<leader>y", [["+y]])
 vim.keymap.set("n", "<leader>Y", [["+Y]])
+
+-- Add this to your Neovim config
+vim.keymap.set('n', '<leader>k', function()
+  local file = vim.fn.expand('%:p')
+  vim.fn.system('echo BLAH"' .. file .. '" | xclip -selection clipboard')
+  vim.fn.system('echo "' .. file .. '" | xclip -selection clipboard')
+  vim.fn.system('kiro-tmux "' .. file .. '"')
+end, { desc = 'Open Kiro CLI in new tmux window with current file' })
+
+
+vim.keymap.set("n", "<leader>po", "<cmd>Ex<CR>")

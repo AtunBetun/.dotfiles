@@ -1,6 +1,23 @@
+local function bemol()
+	local bemol_dir = vim.fs.find({ ".bemol" }, { upward = true, type = "directory" })[1]
+	local ws_folders_lsp = {}
+	if bemol_dir then
+		local file = io.open(bemol_dir .. "/ws_root_folders", "r")
+		if file then
+			for line in file:lines() do
+				table.insert(ws_folders_lsp, line)
+			end
+			file:close()
+		end
+	end
+
+	for _, line in ipairs(ws_folders_lsp) do
+		vim.lsp.buf.add_workspace_folder(line)
+	end
+end
+
 return {
 	{
-		"Decodetalkers/csharpls-extended-lsp.nvim",
 		"Decodetalkers/csharpls-extended-lsp.nvim",
 	},
 	{
@@ -9,6 +26,7 @@ return {
 			"williamboman/mason.nvim",
 			"williamboman/mason-lspconfig.nvim",
 			"WhoIsSethDaniel/mason-tool-installer.nvim",
+            "mfussenegger/nvim-jdtls",
 			{ "j-hui/fidget.nvim", opts = {} },
 			{ "folke/neodev.nvim", opts = {} },
 		},
@@ -46,47 +64,33 @@ return {
 							callback = vim.lsp.buf.clear_references,
 						})
 					end
+
+					bemol()
 				end,
 			})
-
-			-- vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-			-- 	pattern = "*.gitlab-ci*.{yml,yaml}",
-			-- 	callback = function()
-			-- 		vim.bo.filetype = "yaml.gitlab"
-			-- 	end,
-			-- })
 
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
 			capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 			local servers = {
-				gopls = {},
 				pyright = {},
 				rust_analyzer = {},
 				tailwindcss = {},
 				dockerls = {},
-				-- sql_language_server = {},
-
-				-- csharp_ls = {
-				-- 	handlers = {
-				-- 		["textDocument/definition"] = require("csharpls_extended").handler,
-				-- 		["textDocument/typeDefinition"] = require("csharpls_extended").handler,
-				-- 	},
-				-- 	on_attach = function(_, bufnr)
-				-- 		vim.keymap.set("n", "gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to definition" })
-				-- 	end,
-				-- },
+                -- denols = {},
+                -- ts_ls = {},
+                ts_ls = {
+                    on_attach = function(client, bufnr)
+                        client.server_capabilities.documentFormattingProvider = false
+                        client.server_capabilities.documentRangeFormattingProvider = false
+                    end,
+                },
 				robotframework_ls = {},
 				lua_ls = {
-					-- cmd = {...},
-					-- filetypes = { ...},
-					-- capabilities = {},
 					settings = {
 						Lua = {
 							completion = {
 								callSnippet = "Replace",
 							},
-							-- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-							-- diagnostics = { disable = { 'missing-fields' } },
 						},
 					},
 				},
@@ -97,14 +101,16 @@ return {
 			vim.list_extend(ensure_installed, {
 				"stylua",
 				"black",
+                "jdtls",
 				-- "csharp_ls",
 				"pyright",
 				"ruff",
 				"terraform-ls",
 				"dockerls",
-				"gopls",
+				-- "gopls",
 				-- "tsserver",
 				"tailwindcss",
+				"jdtls",
 			})
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
@@ -112,9 +118,6 @@ return {
 				handlers = {
 					function(server_name)
 						local server = servers[server_name] or {}
-						-- This handles overriding only values explicitly passed
-						-- by the server configuration above. Useful when disabling
-						-- certain features of an LSP (for example, turning off formatting for tsserver)
 						server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
 						require("lspconfig")[server_name].setup(server)
 					end,

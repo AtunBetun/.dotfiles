@@ -1,3 +1,7 @@
+
+# Kiro CLI pre block. Keep at the top of this file.
+[[ -f "${HOME}/.local/share/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/.local/share/kiro-cli/shell/zshrc.pre.zsh"
+
 # =====================
 # CORE OH-MY-ZSH SETUP
 # =====================
@@ -14,6 +18,8 @@ plugins=(git docker)
 # =====================
 export PATH="$HOME/.local/bin:$HOME/.bx_scripts/bin:$HOME/.local/share/nvim/mason/bin:/usr/local/go/bin:/usr/local/sbin:~/.local/scripts:/opt/nvim-linux64/bin:/home/bxuser/bin:$PATH"
 export PATH="$PATH:$HOME/.toolbox/bin"
+export PATH="$PATH:/home/linuxbrew/.linuxbrew/bin"
+export GOPROXY=direct
 
 # =====================
 # KEYBINDINGS & ALIASES
@@ -23,7 +29,7 @@ bindkey ^R history-incremental-search-backward
 bindkey ^S history-incremental-search-forward
 export VI_MODE_SET_CURSOR=true
 
-alias vim="nvim"
+alias v="nvim ."
 alias cpwd="pwd | xclip -selection clipboard"
 alias df="dotnet-fzf"
 alias killbg='kill -KILL ${${(v)jobstates##*:*:}%=*}'
@@ -71,6 +77,17 @@ alias bbr='brc brazil-build'
 alias bball='brc --allPackages'
 alias bbb='brc --allPackages brazil-build'
 alias bbra='bbr apollo-pkg'
-alias k='kiro-cli'
+alias k='kiro-cli chat --trust-tools=fs_read,fs_write'
 
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+export JAVA_HOME=$(dirname $(dirname $(realpath /usr/bin/java)))
+export PATH=$JAVA_HOME/bin:$PATH
+
+# if you wish to use IMDS set AWS_EC2_METADATA_DISABLED=false
+
+export AWS_EC2_METADATA_DISABLED=true
+
+
+
+# Kiro CLI post block. Keep at the bottom of this file.
+[[ -f "${HOME}/.local/share/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/.local/share/kiro-cli/shell/zshrc.post.zsh"
