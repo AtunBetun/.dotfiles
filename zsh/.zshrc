@@ -16,7 +16,7 @@ plugins=(git docker)
 # =====================
 # PATH SETUP
 # =====================
-export PATH="$HOME/.local/bin:$HOME/.bx_scripts/bin:$HOME/.local/share/nvim/mason/bin:/usr/local/go/bin:/usr/local/sbin:~/.local/scripts:/opt/nvim-linux64/bin:/home/bxuser/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.bx_scripts/bin:$HOME/.local/share/nvim/mason/bin:/usr/local/go/bin:/usr/local/sbin:~/.local/scripts:/opt/nvim-linux64/bin:/home/bxuser/bin:$HOME/.dotfiles/scripts:$PATH"
 export PATH="$PATH:$HOME/.toolbox/bin"
 export PATH="$PATH:/home/linuxbrew/.linuxbrew/bin"
 export GOPROXY=direct
@@ -31,7 +31,6 @@ export VI_MODE_SET_CURSOR=true
 
 alias v="nvim ."
 alias cpwd="pwd | xclip -selection clipboard"
-alias df="dotnet-fzf"
 alias killbg='kill -KILL ${${(v)jobstates##*:*:}%=*}'
 
 # =====================
@@ -91,3 +90,31 @@ export AWS_EC2_METADATA_DISABLED=true
 
 # Kiro CLI post block. Keep at the bottom of this file.
 [[ -f "${HOME}/.local/share/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/.local/share/kiro-cli/shell/zshrc.post.zsh"
+
+# Added by AIM CLI
+export PATH="$HOME/.aim/mcp-servers:$PATH"
+
+# --- Syncthing ---
+if ! pgrep -x syncthing > /dev/null; then
+    nohup bash -c 'while true; do /home/linuxbrew/.linuxbrew/opt/syncthing/bin/syncthing --no-browser --no-restart; sleep 5; done' > ~/.syncthing.log 2>&1 &
+fi
+alias st-status="pgrep -a syncthing"
+alias st-stop="pkill syncthing"
+alias st-start="nohup bash -c 'while true; do /home/linuxbrew/.linuxbrew/opt/syncthing/bin/syncthing --no-browser --no-restart; sleep 5; done' > ~/.syncthing.log 2>&1 &"
+alias st-log="tail -f ~/.syncthing.log"
+
+# MeshClaw
+export PATH="/workplace/adesain/superloader/MeshClaw/src/MeshClaw/bin:$PATH"
+
+# Added by AIM CLI
+export PATH="/local/home/adesain/.aim/mcp-servers:$PATH"
+
+# bun completions
+[ -s "/local/home/adesain/.bun/_bun" ] && source "/local/home/adesain/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+# Entire CLI shell completion
+autoload -Uz compinit && compinit && source <(entire completion zsh)

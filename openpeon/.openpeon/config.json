@@ -1,0 +1,16 @@
+{
+  "volume": 0,
+  "categories": {
+    "session.start": false,
+    "task.acknowledge": false,
+    "task.complete": false,
+    "task.error": false,
+    "input.required": false,
+    "resource.limit": false,
+    "user.spam": false
+  },
+  "desktop_notifications": true,
+  "overlay_theme": "neon",
+  "notification_position": "top-center",
+  "notification_dismiss_seconds": 4
+}

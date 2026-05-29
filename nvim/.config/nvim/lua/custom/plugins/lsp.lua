@@ -76,6 +76,7 @@ return {
 				rust_analyzer = {},
 				tailwindcss = {},
 				dockerls = {},
+                smithy_ls = {},
                 -- denols = {},
                 -- ts_ls = {},
                 ts_ls = {

@@ -6,7 +6,7 @@ eval "$(mise activate zsh)"
 if [[ $# -eq 1 ]]; then
     selected=$1
 else
-    selected=$(find  ~/work ~/ /workplace/adesain /workplace/adesain/*/src -mindepth 1 -maxdepth 1 -type d | fzf --height=90% --border=sharp --prompt='Open Tmux Session > ' --preview='tree -C {}' --preview-window='45%,border-sharp')
+    selected=$(find  ~/work ~/ /workplace/adesain /home/adesain/brazil-workspaces/ /workplace/adesain/*/src -mindepth 1 -maxdepth 1 -type d | fzf --height=90% --border=sharp --prompt='Open Tmux Session > ' --preview='tree -C {}' --preview-window='45%,border-sharp')
 fi
 
 if [[ -z $selected ]]; then

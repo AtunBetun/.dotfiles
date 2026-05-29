@@ -1,0 +1,175 @@
+#!/usr/bin/env bash
+# bw — Brazil Worktree manager
+#
+# Usage:
+#   bw new <branch-name> [workspace-name]   Create a new parallel workspace
+#   bw list                                  List all worktrees across all packages
+#   bw rm <workspace-name>                   Remove a workspace and its worktrees
+#   bw clean                                 Remove worktrees for merged/deleted branches
+#
+# Example:
+#   bw new feature/asr-mitigations           Creates /workplace/adesain/DailyShopAgent-feature-asr-mitigations/
+#   bw new feature/asr-mitigations asr-work  Creates /workplace/adesain/DailyShopAgent-asr-work/
+
+set -euo pipefail
+
+# Walk up from $PWD to find the Brazil workspace root (directory containing packageInfo)
+_find_workspace_root() {
+    local dir="$PWD"
+    while [ "$dir" != "/" ]; do
+        [ -f "$dir/packageInfo" ] && { echo "$dir"; return; }
+        dir="$(dirname "$dir")"
+    done
+    echo ""
+}
+
+WORKSPACE_ROOT="$(_find_workspace_root)"
+if [ -z "$WORKSPACE_ROOT" ]; then
+    echo "error: not inside a Brazil workspace (no packageInfo found in $PWD or any parent)" >&2
+    exit 1
+fi
+WORKSPACE_PARENT="$(dirname "$WORKSPACE_ROOT")"
+WORKSPACE_NAME="$(basename "$WORKSPACE_ROOT")"
+SRC_DIR="$WORKSPACE_ROOT/src"
+
+_packages() {
+    for d in "$SRC_DIR"/*/; do
+        [ -d "$d/.git" ] && basename "$d"
+    done
+}
+
+_workspace_dir() {
+    local branch="$1"
+    local alias="${2:-}"
+    if [ -n "$alias" ]; then
+        echo "$WORKSPACE_PARENT/${WORKSPACE_NAME}-${alias}"
+    else
+        # feature/foo-bar → DailyShopAgent-feature-foo-bar
+        local slug
+        slug=$(echo "$branch" | tr '/' '-' | tr '_' '-')
+        echo "$WORKSPACE_PARENT/${WORKSPACE_NAME}-${slug}"
+    fi
+}
+
+cmd_new() {
+    local branch="${1:-}"
+    local alias="${2:-}"
+    [ -z "$branch" ] && { echo "Usage: bw new <branch-name> [workspace-name]"; exit 1; }
+
+    local dest
+    dest="$(_workspace_dir "$branch" "$alias")"
+
+    if [ -d "$dest" ]; then
+        echo "error: $dest already exists" >&2
+        exit 1
+    fi
+
+    echo "Creating workspace: $dest"
+    mkdir -p "$dest/src"
+
+    # packageInfo is what Brazil uses to recognize a workspace directory
+    if [ -f "$WORKSPACE_ROOT/packageInfo" ]; then
+        cp "$WORKSPACE_ROOT/packageInfo" "$dest/packageInfo"
+    else
+        echo "error: no packageInfo found in $WORKSPACE_ROOT" >&2
+        exit 1
+    fi
+
+    local failed=0
+    for pkg in $(_packages); do
+        local src_pkg="$SRC_DIR/$pkg"
+        local dst_pkg="$dest/src/$pkg"
+        echo "  + $pkg → $dst_pkg"
+        if ! git -C "$src_pkg" worktree add "$dst_pkg" -b "$branch" 2>&1; then
+            # Branch may already exist in this package — try without -b
+            echo "    branch may exist, trying without -b..."
+            if ! git -C "$src_pkg" worktree add "$dst_pkg" "$branch" 2>&1; then
+                echo "    WARNING: failed to add worktree for $pkg" >&2
+                failed=$((failed + 1))
+                continue
+            fi
+        fi
+        # Track origin/mainline so brazil ws sync can rebase
+        git -C "$dst_pkg" branch --set-upstream-to=origin/mainline "$branch"
+    done
+
+    echo ""
+    echo "Workspace ready at: $dest"
+    echo "Packages linked: $(echo $(_packages) | wc -w | tr -d ' ')"
+    [ "$failed" -gt 0 ] && echo "WARNING: $failed package(s) failed — check output above"
+    echo ""
+    echo "Next steps:"
+    echo "  cd $dest && brazil workspace sync --md"
+    echo "  # or just: cd $dest && brazil-build"
+}
+
+cmd_list() {
+    echo "Worktrees across all packages in $WORKSPACE_NAME:"
+    echo ""
+    for pkg in $(_packages); do
+        echo "  [$pkg]"
+        git -C "$SRC_DIR/$pkg" worktree list --porcelain \
+            | grep -E "^(worktree|branch)" \
+            | paste - - \
+            | awk '{printf "    %-55s %s\n", $2, $4}' \
+            | sed 's|refs/heads/||'
+        echo ""
+    done
+}
+
+cmd_rm() {
+    local alias="${1:-}"
+    [ -z "$alias" ] && { echo "Usage: bw rm <workspace-name>"; exit 1; }
+
+    # Accept either bare name or full path
+    local dest
+    if [[ "$alias" == /* ]]; then
+        dest="$alias"
+    else
+        dest="$WORKSPACE_PARENT/${WORKSPACE_NAME}-${alias}"
+    fi
+
+    if [ ! -d "$dest" ]; then
+        echo "error: $dest not found" >&2
+        exit 1
+    fi
+
+    echo "Removing workspace: $dest"
+    for pkg in $(_packages); do
+        local dst_pkg="$dest/src/$pkg"
+        if [ -d "$dst_pkg" ]; then
+            echo "  - $pkg"
+            git -C "$SRC_DIR/$pkg" worktree remove --force "$dst_pkg" 2>/dev/null || true
+        fi
+    done
+
+    rm -rf "$dest"
+    echo "Done."
+}
+
+cmd_clean() {
+    echo "Pruning stale worktree entries..."
+    for pkg in $(_packages); do
+        git -C "$SRC_DIR/$pkg" worktree prune
+        echo "  pruned: $pkg"
+    done
+    echo "Done."
+}
+
+cmd="${1:-help}"
+shift || true
+
+case "$cmd" in
+    new)    cmd_new "$@" ;;
+    list)   cmd_list ;;
+    rm)     cmd_rm "$@" ;;
+    clean)  cmd_clean ;;
+    help|--help|-h)
+        grep '^# ' "$0" | sed 's/^# //'
+        ;;
+    *)
+        echo "Unknown command: $cmd"
+        echo "Run: bw help"
+        exit 1
+        ;;
+esac
