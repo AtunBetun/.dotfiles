@@ -4,6 +4,11 @@ require("custom.remap")
 vim.g.loaded_netrwPlugin = 1
 vim.g.loaded_netrw = 1
 
+vim.api.nvim_create_autocmd("BufWritePre", {
+	pattern = "*",
+	command = [[%s/\s\+$//e]],
+})
+
 vim.api.nvim_create_autocmd("TextYankPost", {
 	desc = "Highlight when yanking (copying) text",
 	group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
