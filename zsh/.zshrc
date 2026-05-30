@@ -8,7 +8,7 @@ zstyle ':vcs_info:git:*' unstagedstr ' %F{167}*%F{132}'
 zstyle ':vcs_info:git:*' check-for-changes true
 setopt PROMPT_SUBST
 
-PROMPT=$'%F{223}%n@%m%f %F{214}%~%f %F{132}${vcs_info_msg_0_}%f
+PROMPT=$'%F{223}%n%f %F{214}%~%f %F{132}${vcs_info_msg_0_}%f
 %F{208}$%f '
 
 # =====================
