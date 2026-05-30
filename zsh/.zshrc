@@ -12,6 +12,16 @@ PROMPT=$'%F{223}%n@%m%f %F{214}%~%f %F{132}${vcs_info_msg_0_}%f
 %F{208}$%f '
 
 # =====================
+# HISTORY
+# =====================
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+setopt EXTENDED_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt SHARE_HISTORY
+
+# =====================
 # COMPLETIONS (must be before tools that use compdef)
 # =====================
 autoload -Uz compinit && compinit -C
@@ -70,6 +80,8 @@ alias bbr='brc brazil-build'
 alias bball='brc --allPackages'
 alias bbb='brc --allPackages brazil-build'
 alias bbra='bbr apollo-pkg'
+alias br='brazil-recursive-cmd brazil-build --allPackages'
+
 
 [[ -f /home/linuxbrew/.linuxbrew/bin/brew ]] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 [[ -f /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
