@@ -1,24 +1,26 @@
+# =====================
+# PROMPT (gruvbox)
+# =====================
+autoload -Uz vcs_info
+precmd() { vcs_info }
+zstyle ':vcs_info:git:*' formats '%b%u'
+zstyle ':vcs_info:git:*' unstagedstr ' %F{167}*%F{132}'
+zstyle ':vcs_info:git:*' check-for-changes true
+setopt PROMPT_SUBST
 
-# Kiro CLI pre block. Keep at the top of this file.
-[[ -f "${HOME}/.local/share/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/.local/share/kiro-cli/shell/zshrc.pre.zsh"
+PROMPT=$'%F{223}%n@%m%f %F{214}%~%f %F{132}${vcs_info_msg_0_}%f
+%F{208}$%f '
 
 # =====================
-# CORE OH-MY-ZSH SETUP
+# COMPLETIONS (must be before tools that use compdef)
 # =====================
-export ZSH="$HOME/.oh-my-zsh"
-DISABLE_AUTO_UPDATE="true"
-ZSH_THEME="crcandy"
-plugins=(git docker)
-
-# Source Oh-My-Zsh once
-[ -f "$ZSH/oh-my-zsh.sh" ] && source "$ZSH/oh-my-zsh.sh"
+autoload -Uz compinit && compinit -C
 
 # =====================
 # PATH SETUP
 # =====================
-export PATH="$HOME/.local/bin:$HOME/.bx_scripts/bin:$HOME/.local/share/nvim/mason/bin:/usr/local/go/bin:/usr/local/sbin:~/.local/scripts:/opt/nvim-linux64/bin:/home/bxuser/bin:$HOME/.dotfiles/scripts:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.local/share/nvim/mason/bin:/usr/local/go/bin:/usr/local/sbin:$HOME/.local/scripts:$HOME/.dotfiles/scripts:$PATH"
 export PATH="$PATH:$HOME/.toolbox/bin"
-export PATH="$PATH:/home/linuxbrew/.linuxbrew/bin"
 export GOPROXY=direct
 
 # =====================
@@ -29,92 +31,72 @@ bindkey ^R history-incremental-search-backward
 bindkey ^S history-incremental-search-forward
 export VI_MODE_SET_CURSOR=true
 
+alias ls="ls --color=auto"
+alias l="ls -lah"
+alias ll="ls -lh"
+alias la="ls -lAh"
 alias v="nvim ."
+alias c="claude --dangerously-skip-permissions"
 alias cpwd="pwd | xclip -selection clipboard"
 alias killbg='kill -KILL ${${(v)jobstates##*:*:}%=*}'
 
 # =====================
 # FZF
 # =====================
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-source <(~/.local/share/mise/installs/fzf/0.67.0/fzf --zsh)
+source <(fzf --zsh)
 
 # =====================
 # BASH COMPLETION SUPPORT
 # =====================
 autoload -U +X bashcompinit && bashcompinit
-complete -C '/usr/local/bin/aws_completer' aws
+command -v aws_completer &>/dev/null && complete -C aws_completer aws
 
 # =====================
 # MISE SETUP
 # =====================
 eval "$(mise activate zsh)"
-export PATH="$HOME/.local/bin:$PATH"
-
-# Load completions once with caching
-autoload -Uz compinit && compinit -C
-# The following lines have been added by Docker Desktop to enable Docker CLI completions.
-fpath=(/Users/albertodesaintmalo/.docker/completions $fpath)
-autoload -Uz compinit
-compinit
-# End of Docker CLI completions
 
 # =====================
 # AMAZON
 # =====================
-alias e=emacs
 alias bb=brazil-build
-
 alias bba='brazil-build apollo-pkg'
 alias bre='brazil-runtime-exec'
 alias brc='brazil-recursive-cmd'
 alias bws='brazil ws'
 alias bwsuse='bws use -p'
 alias bwscreate='bws create -n'
-alias brc=brazil-recursive-cmd
 alias bbr='brc brazil-build'
 alias bball='brc --allPackages'
 alias bbb='brc --allPackages brazil-build'
 alias bbra='bbr apollo-pkg'
-alias k='kiro-cli chat --trust-tools=fs_read,fs_write'
 
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+[[ -f /home/linuxbrew/.linuxbrew/bin/brew ]] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+[[ -f /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
 export JAVA_HOME=$(dirname $(dirname $(realpath /usr/bin/java)))
 export PATH=$JAVA_HOME/bin:$PATH
 
-# if you wish to use IMDS set AWS_EC2_METADATA_DISABLED=false
-
 export AWS_EC2_METADATA_DISABLED=true
 
+# =====================
+# TOOLS
+# =====================
 
-
-# Kiro CLI post block. Keep at the bottom of this file.
-[[ -f "${HOME}/.local/share/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/.local/share/kiro-cli/shell/zshrc.post.zsh"
-
-# Added by AIM CLI
-export PATH="$HOME/.aim/mcp-servers:$PATH"
-
-# --- Syncthing ---
-if ! pgrep -x syncthing > /dev/null; then
-    nohup bash -c 'while true; do /home/linuxbrew/.linuxbrew/opt/syncthing/bin/syncthing --no-browser --no-restart; sleep 5; done' > ~/.syncthing.log 2>&1 &
+# Syncthing
+if command -v syncthing &>/dev/null && ! pgrep -x syncthing > /dev/null; then
+    nohup bash -c 'while true; do syncthing --no-browser --no-restart; sleep 5; done' > ~/.syncthing.log 2>&1 &
 fi
 alias st-status="pgrep -a syncthing"
 alias st-stop="pkill syncthing"
-alias st-start="nohup bash -c 'while true; do /home/linuxbrew/.linuxbrew/opt/syncthing/bin/syncthing --no-browser --no-restart; sleep 5; done' > ~/.syncthing.log 2>&1 &"
+alias st-start="nohup bash -c 'while true; do syncthing --no-browser --no-restart; sleep 5; done' > ~/.syncthing.log 2>&1 &"
 alias st-log="tail -f ~/.syncthing.log"
 
-# MeshClaw
-export PATH="/workplace/adesain/superloader/MeshClaw/src/MeshClaw/bin:$PATH"
+# AIM CLI
+export PATH="$HOME/.aim/mcp-servers:$PATH"
 
-# Added by AIM CLI
-export PATH="/local/home/adesain/.aim/mcp-servers:$PATH"
-
-# bun completions
-[ -s "/local/home/adesain/.bun/_bun" ] && source "/local/home/adesain/.bun/_bun"
-
-# bun
+# Bun
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
-# Entire CLI shell completion
-autoload -Uz compinit && compinit && source <(entire completion zsh)
+source <(entire completion zsh)
