@@ -3,3 +3,10 @@ bin/.local/share
 bin/.local/state
 !bin/.local/bin/twitch-chat
 
+nvim/.config/ada/
+nvim/.config/brazil/
+nvim/.config/cr/
+nvim/.config/git/
+nvim/.config/htop/
+nvim/.config/mechanic/
+

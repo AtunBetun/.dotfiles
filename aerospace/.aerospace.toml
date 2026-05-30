@@ -1,0 +1,111 @@
+# Place a copy of this config to ~/.aerospace.toml
+
+after-login-command = []
+start-at-login = true
+
+# Normalizations
+enable-normalization-flatten-containers = true
+enable-normalization-opposite-orientation-for-nested-containers = true
+
+# Layout
+accordion-padding = 150
+default-root-container-layout = 'tiles'
+default-root-container-orientation = 'auto'
+
+# Mouse follows focus
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+
+# Unhide hidden apps automatically
+automatically-unhide-macos-hidden-apps = true
+
+[key-mapping]
+    preset = 'qwerty'
+
+# Gaps
+[gaps]
+    inner.horizontal = 2
+    inner.vertical =   2
+    outer.left =       2
+    outer.bottom =     2
+    outer.top =        2
+    outer.right =      2
+
+[mode.main.binding]
+    # Open terminal
+    alt-enter = 'exec-and-forget open -a Alacritty'
+    ctrl-enter = 'exec-and-forget /opt/X11/bin/xterm -e alacritty'
+
+    # Workspaces (simplified to 4 + extras)
+    alt-1 = 'workspace 1'
+    alt-2 = 'workspace 2'
+    alt-3 = 'workspace 3'
+    alt-4 = 'workspace 4'
+    alt-5 = 'workspace 5' # notion
+    alt-s = 'workspace S' # slack
+
+    # Move windows to workspaces
+    alt-shift-1 = 'move-node-to-workspace 1'
+    alt-shift-2 = 'move-node-to-workspace 2'
+    alt-shift-3 = 'move-node-to-workspace 3'
+    alt-shift-4 = 'move-node-to-workspace 4'
+    alt-shift-5 = 'move-node-to-workspace 5'
+    alt-shift-s = 'move-node-to-workspace S'
+
+    # Layout
+    alt-slash = 'layout tiles horizontal vertical'
+    alt-comma = 'layout accordion horizontal vertical'
+
+    # Focus windows
+    alt-h = 'focus left'
+    alt-j = 'focus down'
+    alt-k = 'focus up'
+    alt-l = 'focus right'
+
+    # Move windows
+    alt-shift-h = 'move left'
+    alt-shift-j = 'move down'
+    alt-shift-k = 'move up'
+    alt-shift-l = 'move right'
+
+    # Window actions
+    alt-w = 'close'
+    alt-f = 'fullscreen'
+    # alt-s = 'exec-and-forget screencapture -s -c'
+
+
+    # Monitor navigation (for when you use 2 monitors)
+    # alt-shift-m = 'focus-monitor next'
+    # alt-shift-n = 'move-node-to-monitor next --focus-follows-window'
+
+    # Quick workspace switching
+    alt-tab = 'workspace-back-and-forth'
+
+    # Service mode
+    alt-shift-o = 'mode service'
+
+[mode.service.binding]
+    esc = ['reload-config', 'mode main']
+    r = ['flatten-workspace-tree', 'mode main']
+    f = ['layout floating tiling', 'mode main']
+    backspace = ['close-all-windows-but-current', 'mode main']
+
+    # Resize
+    alt-shift-comma = 'resize smart -50'
+    alt-shift-slash = 'resize smart +50'
+
+# Floating windows
+[[on-window-detected]]
+    if.app-id = 'com.apple.Passwords'
+    run = 'layout floating'
+
+[[on-window-detected]]
+    if.app-id = 'com.cisco.secureclient.gui'
+    run = 'layout floating'
+
+[[on-window-detected]]
+    if.app-id = 'com.apple.finder'
+    run = 'layout floating'
+
+[[on-window-detected]]
+    if.app-id = 'com.bitwarden.desktop'
+    run = 'layout floating'

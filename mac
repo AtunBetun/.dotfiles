@@ -4,7 +4,6 @@ set -e
 
 ./mac_modules/dependencies
 ./mac_modules/fzf
-./mac_modules/nvim
 ./mac_modules/ohmyzsh
 
 set +e

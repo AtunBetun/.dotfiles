@@ -12,8 +12,7 @@ plugins=(git docker)
 # =====================
 # PATH SETUP
 # =====================
-export ASDF_DATA_DIR="${ASDF_DATA_DIR:-$HOME/.asdf}"
-export PATH="$ASDF_DATA_DIR/shims:$HOME/.local/bin:$HOME/.bx_scripts/bin:$HOME/.local/share/nvim/mason/bin:/usr/local/go/bin:/usr/local/sbin:~/.local/scripts:/opt/nvim-linux64/bin:/home/bxuser/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.bx_scripts/bin:$HOME/.local/share/nvim/mason/bin:/usr/local/go/bin:/usr/local/sbin:~/.local/scripts:/opt/nvim-linux64/bin:/home/bxuser/bin:$PATH"
 
 # =====================
 # KEYBINDINGS & ALIASES
@@ -25,7 +24,6 @@ export VI_MODE_SET_CURSOR=true
 
 alias vim="nvim"
 alias cpwd="pwd | xclip -selection clipboard"
-alias df="dotnet-fzf"
 alias killbg='kill -KILL ${${(v)jobstates##*:*:}%=*}'
 
 # =====================
@@ -40,23 +38,23 @@ autoload -U +X bashcompinit && bashcompinit
 complete -C '/usr/local/bin/aws_completer' aws
 
 # =====================
-# ASDF SETUP
+# COMPLETIONS
 # =====================
-# Load ASDF plugin environments (dotnet & go)
-[ -f "$ASDF_DATA_DIR/plugins/dotnet/set-dotnet-env.zsh" ] && . "$ASDF_DATA_DIR/plugins/dotnet/set-dotnet-env.zsh"
-[ -f "$ASDF_DATA_DIR/plugins/golang/set-env.zsh" ] && . "$ASDF_DATA_DIR/plugins/golang/set-env.zsh"
-
-# ASDF completions (only generate once)
-if [ ! -f "$ASDF_DATA_DIR/completions/_asdf" ]; then
-    mkdir -p "$ASDF_DATA_DIR/completions"
-    asdf completion zsh > "$ASDF_DATA_DIR/completions/_asdf"
-fi
-fpath=("$ASDF_DATA_DIR/completions" $fpath)
-
-# Load completions once with caching
 autoload -Uz compinit && compinit -C
 # The following lines have been added by Docker Desktop to enable Docker CLI completions.
 fpath=(/Users/albertodesaintmalo/.docker/completions $fpath)
 autoload -Uz compinit
 compinit
 # End of Docker CLI completions
+
+export PATH=$HOME/.toolbox/bin:$PATH
+eval "$(/opt/homebrew/bin/brew shellenv)"
+# Set up mise for runtime management
+eval "$(mise activate zsh)"
+source /Users/adesain/.brazil_completion/zsh_completion
+
+[[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
+
+# Added by AIM CLI
+export PATH="/Users/adesain/.aim/mcp-servers:$PATH"
+pgrep -f "autossh.*22001.*42069.*7777" > /dev/null || autossh -M 0 -f -N -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -L 22001:localhost:22000 -L 42069:localhost:8384 -L 7777:localhost:7777 dev-dsk-adesain-1e-701793ec.us-east-1.amazon.com

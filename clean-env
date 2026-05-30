@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-my_array=("bin" "i3" "nvim" "tmux" "zsh")
+my_array=("bin" "nvim" "tmux" "zsh" "kitty" "aerospace")
 
 for item in "${my_array[@]}"; do
 	echo "Removing $item"
