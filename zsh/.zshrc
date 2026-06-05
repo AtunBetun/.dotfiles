@@ -29,7 +29,7 @@ autoload -Uz compinit && compinit -C
 # =====================
 # PATH SETUP
 # =====================
-export PATH="$HOME/.local/bin:$HOME/.local/share/nvim/mason/bin:/usr/local/go/bin:/usr/local/sbin:$HOME/.local/scripts:$HOME/.dotfiles/scripts:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.local/share/nvim/mason/bin:/usr/local/go/bin:/usr/local/sbin:$HOME/.local/scripts:$HOME/.dotfiles/scripts:/apollo/env/envImprovement/bin:$PATH"
 export PATH="$PATH:$HOME/.toolbox/bin"
 export GOPROXY=direct
 
@@ -69,10 +69,11 @@ eval "$(mise activate zsh)"
 # =====================
 # AMAZON
 # =====================
-alias bb=brazil-build
+alias bb='brazil-build'
 alias bba='brazil-build apollo-pkg'
 alias bre='brazil-runtime-exec'
 alias brc='brazil-recursive-cmd'
+alias brp='brazil-recursive-cmd-parallel'
 alias bws='brazil ws'
 alias bwsuse='bws use -p'
 alias bwscreate='bws create -n'
@@ -80,13 +81,11 @@ alias bbr='brc brazil-build'
 alias bball='brc --allPackages'
 alias bbb='brc --allPackages brazil-build'
 alias bbra='bbr apollo-pkg'
-alias br='brazil-recursive-cmd brazil-build --allPackages'
+alias br='brazil-recursive-cmd-parallel --allPackages -- brazil-build'
 
 
 [[ -f /home/linuxbrew/.linuxbrew/bin/brew ]] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 [[ -f /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
-export JAVA_HOME=$(dirname $(dirname $(realpath /usr/bin/java)))
-export PATH=$JAVA_HOME/bin:$PATH
 
 export AWS_EC2_METADATA_DISABLED=true
 
