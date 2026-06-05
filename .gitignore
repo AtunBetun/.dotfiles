@@ -1,4 +1,5 @@
 bin/.local/bin
+bin/.local/lib
 bin/.local/share
 bin/.local/state
 !bin/.local/bin/twitch-chat
