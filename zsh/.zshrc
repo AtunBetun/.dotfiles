@@ -90,18 +90,10 @@ export PATH=$JAVA_HOME/bin:$PATH
 
 export AWS_EC2_METADATA_DISABLED=true
 
-# =====================
-# TOOLS
-# =====================
-
 # Syncthing
 if command -v syncthing &>/dev/null && ! pgrep -x syncthing > /dev/null; then
     nohup bash -c 'while true; do syncthing --no-browser --no-restart; sleep 5; done' > ~/.syncthing.log 2>&1 &
 fi
-alias st-status="pgrep -a syncthing"
-alias st-stop="pkill syncthing"
-alias st-start="nohup bash -c 'while true; do syncthing --no-browser --no-restart; sleep 5; done' > ~/.syncthing.log 2>&1 &"
-alias st-log="tail -f ~/.syncthing.log"
 
 # AIM CLI
 export PATH="$HOME/.aim/mcp-servers:$PATH"
