@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+[[ "${DEBUG:-0}" == 1 ]] && set -x
+trap 'status=$?; printf "ERROR [tmux] line %s: %s (exit %s)\n" "$LINENO" "$BASH_COMMAND" "$status" >&2' ERR
+
+tpm_dir="$HOME/.tmux/plugins/tpm"
+
+if [[ ! -d "$tpm_dir/.git" ]]; then
+    echo "[tmux] Cloning TPM into $tpm_dir"
+    git clone --depth 1 https://github.com/tmux-plugins/tpm "$tpm_dir"
+else
+    echo "[tmux] TPM is already installed"
+fi

@@ -1,9 +1,18 @@
 #!/bin/bash
 
-set -e
+set -Eeuo pipefail
+[[ "${DEBUG:-0}" == 1 ]] && set -x
+trap 'status=$?; printf "ERROR [mac] line %s: %s (exit %s)\n" "$LINENO" "$BASH_COMMAND" "$status" >&2' ERR
 
+echo "[mac] Installing macOS dependencies"
 ./mac_modules/dependencies
-./mac_modules/fzf
-./mac_modules/ohmyzsh
+echo "[mac] Installing Mise tools"
+./mac_modules/mise
+echo "[mac] Installing tmux plugin manager"
+./modules/tmux
+echo "[mac] Stowing macOS dotfiles"
+./install-dotfiles mac
+
+echo "[mac] Installation complete"
 
 set +e

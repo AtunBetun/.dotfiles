@@ -1,18 +1,37 @@
 # =====================
-# CORE OH-MY-ZSH SETUP
+# PROMPT (gruvbox)
 # =====================
-export ZSH="$HOME/.oh-my-zsh"
-DISABLE_AUTO_UPDATE="true"
-ZSH_THEME="crcandy"
-plugins=(git docker)
+autoload -Uz vcs_info
+precmd() { vcs_info }
+zstyle ':vcs_info:git:*' formats '%b%u'
+zstyle ':vcs_info:git:*' unstagedstr ' %F{167}*%F{132}'
+zstyle ':vcs_info:git:*' check-for-changes true
+setopt PROMPT_SUBST
 
-# Source Oh-My-Zsh once
-[ -f "$ZSH/oh-my-zsh.sh" ] && source "$ZSH/oh-my-zsh.sh"
+PROMPT=$'%F{223}%n%f %F{214}%~%f %F{132}${vcs_info_msg_0_}%f
+%F{208}$%f '
+
+# =====================
+# HISTORY
+# =====================
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+setopt EXTENDED_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt SHARE_HISTORY
+
+# =====================
+# COMPLETIONS (must be before tools that use compdef)
+# =====================
+autoload -Uz compinit && compinit -C
 
 # =====================
 # PATH SETUP
 # =====================
-export PATH="$HOME/.local/bin:$HOME/.bx_scripts/bin:$HOME/.local/share/nvim/mason/bin:/usr/local/go/bin:/usr/local/sbin:~/.local/scripts:/opt/nvim-linux64/bin:/home/bxuser/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.local/share/nvim/mason/bin:/usr/local/go/bin:/usr/local/sbin:$PATH"
+export PATH="$PATH:$HOME/.toolbox/bin"
+export GOPROXY=direct
 
 # =====================
 # KEYBINDINGS & ALIASES
@@ -22,39 +41,47 @@ bindkey ^R history-incremental-search-backward
 bindkey ^S history-incremental-search-forward
 export VI_MODE_SET_CURSOR=true
 
-alias vim="nvim"
+alias ls="ls --color=auto"
+alias l="ls -lah"
+alias ll="ls -lh"
+alias la="ls -lAh"
+alias v="nvim ."
+alias c="claude --dangerously-skip-permissions"
 alias cpwd="pwd | xclip -selection clipboard"
 alias killbg='kill -KILL ${${(v)jobstates##*:*:}%=*}'
 
 # =====================
-# FZF
+# MISE SETUP
 # =====================
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+command -v mise &>/dev/null && eval "$(mise activate zsh)"
+
+# =====================
+# FZF (installed by Mise)
+# =====================
+command -v fzf &>/dev/null && source <(fzf --zsh)
 
 # =====================
 # BASH COMPLETION SUPPORT
 # =====================
 autoload -U +X bashcompinit && bashcompinit
-complete -C '/usr/local/bin/aws_completer' aws
+command -v aws_completer &>/dev/null && complete -C aws_completer aws
 
-# =====================
-# COMPLETIONS
-# =====================
-autoload -Uz compinit && compinit -C
-# The following lines have been added by Docker Desktop to enable Docker CLI completions.
-fpath=(/Users/albertodesaintmalo/.docker/completions $fpath)
-autoload -Uz compinit
-compinit
-# End of Docker CLI completions
+# Amazon-specific aliases and paths are stowed only by the AL2 profile.
+[[ -r "$HOME/.config/zsh/amazon.zsh" ]] && source "$HOME/.config/zsh/amazon.zsh"
 
-export PATH=$HOME/.toolbox/bin:$PATH
-eval "$(/opt/homebrew/bin/brew shellenv)"
-# Set up mise for runtime management
-eval "$(mise activate zsh)"
-source /Users/adesain/.brazil_completion/zsh_completion
 
-[[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
+[[ -f /home/linuxbrew/.linuxbrew/bin/brew ]] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+[[ -f /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
+if command -v java &>/dev/null; then
+    export JAVA_HOME=$(dirname $(dirname $(realpath "$(command -v java)")))
+    export PATH=$JAVA_HOME/bin:$PATH
+fi
 
-# Added by AIM CLI
-export PATH="/Users/adesain/.aim/mcp-servers:$PATH"
-pgrep -f "autossh.*22001.*42069.*7777" > /dev/null || autossh -M 0 -f -N -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -L 22001:localhost:22000 -L 42069:localhost:8384 -L 7777:localhost:7777 dev-dsk-adesain-1e-701793ec.us-east-1.amazon.com
+# Syncthing
+if command -v syncthing &>/dev/null && ! pgrep -x syncthing > /dev/null; then
+    nohup bash -c 'while true; do syncthing --no-browser --no-restart; sleep 5; done' > ~/.syncthing.log 2>&1 &
+fi
+
+command -v entire &>/dev/null && source <(entire completion zsh)
+
+[[ "$TERM_PROGRAM" == "kiro" ]] && command -v kiro &>/dev/null && . "$(kiro --locate-shell-integration-path zsh)"

@@ -32,8 +32,8 @@ automatically-unhide-macos-hidden-apps = true
 
 [mode.main.binding]
     # Open terminal
-    alt-enter = 'exec-and-forget open -a Alacritty'
-    ctrl-enter = 'exec-and-forget /opt/X11/bin/xterm -e alacritty'
+    alt-enter = 'exec-and-forget open -a Ghostty'
+    ctrl-enter = 'exec-and-forget open -a Ghostty'
 
     # Workspaces (simplified to 4 + extras)
     alt-1 = 'workspace 1'

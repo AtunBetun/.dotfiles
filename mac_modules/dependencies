@@ -1,7 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
+[[ "${DEBUG:-0}" == 1 ]] && set -x
+trap 'status=$?; printf "ERROR [mac dependencies] line %s: %s (exit %s)\n" "$LINENO" "$BASH_COMMAND" "$status" >&2' ERR
 
-echo "Installing dependencies..."
-brew install zsh curl stow git ripgrep vim wget gpg pass \
+echo "[mac dependencies] Installing Homebrew formulae"
+brew install zsh curl stow git ripgrep vim wget gpg pass xclip jq unzip tree \
   gcc gdb lcov pkg-config bzip2 libffi gdbm xz ncurses \
-  readline sqlite openssl@3 util-linux zstd kitty git-credential-manager gpg pass \
-  nikitabobko/tap/aerospace
+  readline sqlite openssl@3 util-linux zstd git-credential-manager gpg pass
+echo "[mac dependencies] Installing Aerospace"
+brew install nikitabobko/tap/aerospace
+echo "[mac dependencies] Installing Ghostty"
+brew install --cask ghostty

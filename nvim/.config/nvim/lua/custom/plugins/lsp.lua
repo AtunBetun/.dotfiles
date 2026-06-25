@@ -1,125 +1,156 @@
+local function bemol()
+	local bemol_dir = vim.fs.find({ ".bemol" }, { upward = true, type = "directory" })[1]
+	local ws_folders_lsp = {}
+	if bemol_dir then
+		local file = io.open(bemol_dir .. "/ws_root_folders", "r")
+		if file then
+			for line in file:lines() do
+				table.insert(ws_folders_lsp, line)
+			end
+			file:close()
+		end
+	end
+
+	for _, line in ipairs(ws_folders_lsp) do
+		vim.lsp.buf.add_workspace_folder(line)
+	end
+end
+
 return {
 	{
-		"Decodetalkers/csharpls-extended-lsp.nvim",
-		"Decodetalkers/csharpls-extended-lsp.nvim",
+		"williamboman/mason.nvim",
+		opts = {},
+	},
+	{
+		"WhoIsSethDaniel/mason-tool-installer.nvim",
+		dependencies = { "williamboman/mason.nvim" },
+		opts = {
+			ensure_installed = {
+				"stylua",
+				"black",
+				"jdtls",
+				"pyright",
+				"ruff",
+				"terraform-ls",
+				"docker-language-server",
+				"tailwindcss-language-server",
+				"vtsls",
+				"lua-language-server",
+				"rust-analyzer",
+				"smithy-language-server",
+			},
+		},
 	},
 	{
 		"neovim/nvim-lspconfig",
 		dependencies = {
 			"williamboman/mason.nvim",
-			"williamboman/mason-lspconfig.nvim",
-			"WhoIsSethDaniel/mason-tool-installer.nvim",
+			"mfussenegger/nvim-jdtls",
 			{ "j-hui/fidget.nvim", opts = {} },
-			{ "folke/neodev.nvim", opts = {} },
+			{ "folke/lazydev.nvim", opts = {} },
 		},
 		config = function()
 			vim.api.nvim_create_autocmd("LspAttach", {
 				group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
 				callback = function(event)
-					local map = function(keys, func, desc)
-						vim.keymap.set("n", keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
+					local map = function(keys, func, desc, mode)
+						mode = mode or "n"
+						vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
 					end
+
 					map("gd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
 					map("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
 					map("gI", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
 					map("<leader>D", require("telescope.builtin").lsp_type_definitions, "Type [D]efinition")
 					map("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
-					map(
-						"<leader>ws",
-						require("telescope.builtin").lsp_dynamic_workspace_symbols,
-						"[W]orkspace [S]ymbols"
-					)
+					map("<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
 					map("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
-					map("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
-					map("<leader>lsf", vim.lsp.buf.code_action, "[C]ode [A]ction")
+					map("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction", { "n", "x" })
 					map("K", vim.lsp.buf.hover, "Hover Documentation")
 					map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
 
 					local client = vim.lsp.get_client_by_id(event.data.client_id)
-					if client and client.server_capabilities.documentHighlightProvider then
-						vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-							buffer = event.buf,
-							callback = vim.lsp.buf.document_highlight,
-						})
-						vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
-							buffer = event.buf,
-							callback = vim.lsp.buf.clear_references,
-						})
+
+					if client and client:supports_method("textDocument/inlayHint", event.buf) then
+						map("<leader>th", function()
+							vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
+						end, "[T]oggle Inlay [H]ints")
 					end
+
+					bemol()
 				end,
 			})
 
-			-- vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-			-- 	pattern = "*.gitlab-ci*.{yml,yaml}",
-			-- 	callback = function()
-			-- 		vim.bo.filetype = "yaml.gitlab"
-			-- 	end,
-			-- })
+			vim.diagnostic.config({
+				severity_sort = true,
+				float = {
+					focusable = false,
+					style = "minimal",
+					border = "rounded",
+					source = "if_many",
+					header = "",
+					prefix = "",
+				},
+				underline = { severity = { min = vim.diagnostic.severity.WARN } },
+				virtual_text = true,
+			})
 
-			local capabilities = vim.lsp.protocol.make_client_capabilities()
-			capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
+			vim.lsp.handlers["textDocument/hover"] = function(err, result, ctx, config)
+				config = config or {}
+				config.border = "rounded"
+				vim.lsp.handlers.hover(err, result, ctx, config)
+			end
+
+			vim.lsp.handlers["textDocument/signatureHelp"] = function(err, result, ctx, config)
+				config = config or {}
+				config.border = "rounded"
+				vim.lsp.handlers.signature_help(err, result, ctx, config)
+			end
+
 			local servers = {
-				-- gopls = {},
 				pyright = {},
 				rust_analyzer = {},
 				tailwindcss = {},
 				dockerls = {},
-				-- sql_language_server = {},
-
-				-- csharp_ls = {
-				-- 	handlers = {
-				-- 		["textDocument/definition"] = require("csharpls_extended").handler,
-				-- 		["textDocument/typeDefinition"] = require("csharpls_extended").handler,
-				-- 	},
-				-- 	on_attach = function(_, bufnr)
-				-- 		vim.keymap.set("n", "gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to definition" })
-				-- 	end,
-				-- },
-				robotframework_ls = {},
+				smithy_ls = {},
+				vtsls = {
+					on_init = function(client)
+						client.server_capabilities.documentFormattingProvider = false
+						client.server_capabilities.documentRangeFormattingProvider = false
+					end,
+				},
 				lua_ls = {
-					-- cmd = {...},
-					-- filetypes = { ...},
-					-- capabilities = {},
+					on_init = function(client)
+						if client.workspace_folders then
+							local path = client.workspace_folders[1].name
+							if
+								path ~= vim.fn.stdpath("config")
+								and (vim.uv.fs_stat(path .. "/.luarc.json") or vim.uv.fs_stat(path .. "/.luarc.jsonc"))
+							then
+								return
+							end
+						end
+
+						client.config.settings.Lua = vim.tbl_deep_extend("force", client.config.settings.Lua, {
+							runtime = { version = "LuaJIT" },
+							workspace = {
+								checkThirdParty = false,
+								library = vim.api.nvim_get_runtime_file("", true),
+							},
+						})
+					end,
 					settings = {
 						Lua = {
-							completion = {
-								callSnippet = "Replace",
-							},
-							-- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-							-- diagnostics = { disable = { 'missing-fields' } },
+							completion = { callSnippet = "Replace" },
 						},
 					},
 				},
 			}
 
-			require("mason").setup()
-			local ensure_installed = vim.tbl_keys(servers or {})
-			vim.list_extend(ensure_installed, {
-				"stylua",
-				"black",
-				-- "csharp_ls",
-				"pyright",
-				"ruff",
-				"terraform-ls",
-				"dockerls",
-				-- "gopls",
-				-- "tsserver",
-				"tailwindcss",
-			})
-			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
-
-			require("mason-lspconfig").setup({
-				handlers = {
-					function(server_name)
-						local server = servers[server_name] or {}
-						-- This handles overriding only values explicitly passed
-						-- by the server configuration above. Useful when disabling
-						-- certain features of an LSP (for example, turning off formatting for tsserver)
-						server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-						require("lspconfig")[server_name].setup(server)
-					end,
-				},
-			})
+			for name, config in pairs(servers) do
+				vim.lsp.config(name, config)
+				vim.lsp.enable(name)
+			end
 		end,
 	},
 }

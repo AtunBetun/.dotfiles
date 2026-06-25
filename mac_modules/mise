@@ -1,0 +1,9 @@
+#!/bin/bash
+set -euo pipefail
+[[ "${DEBUG:-0}" == 1 ]] && set -x
+trap 'status=$?; printf "ERROR [mac mise] line %s: %s (exit %s)\n" "$LINENO" "$BASH_COMMAND" "$status" >&2' ERR
+
+echo "[mac mise] Installing Mise"
+brew install mise
+echo "[mac mise] Installing tools from mise/.config/mise/config.toml"
+MISE_GLOBAL_CONFIG_FILE=./mise/.config/mise/config.toml mise install

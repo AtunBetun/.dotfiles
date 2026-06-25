@@ -1,0 +1,6 @@
+# Shared terminal configuration for macOS and Ubuntu.
+font-family = Hack Nerd Font
+font-size = 12
+clipboard-read = allow
+clipboard-write = allow
+macos-option-as-alt = true

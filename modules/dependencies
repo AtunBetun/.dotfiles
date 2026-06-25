@@ -1,10 +1,19 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
+[[ "${DEBUG:-0}" == 1 ]] && set -x
+trap 'status=$?; printf "ERROR [ubuntu dependencies] line %s: %s (exit %s)\n" "$LINENO" "$BASH_COMMAND" "$status" >&2' ERR
 
-echo "Installing dependencies..."
+echo "[ubuntu dependencies] Updating APT package index"
 sudo apt-get update
-sudo apt-get install zsh curl stow git ripgrep vim wget curl git gpg pass build-essential zlib1g zlib1g-dev -y
-
-sudo apt-get install build-essential gdb lcov pkg-config \
-      libbz2-dev libffi-dev libgdbm-dev libgdbm-compat-dev liblzma-dev \
-      libncurses5-dev libreadline6-dev libsqlite3-dev libssl-dev \
-      lzma lzma-dev tk-dev uuid-dev zlib1g-dev libzstd-dev -y
+echo "[ubuntu dependencies] Installing APT repository tooling"
+sudo apt-get install --yes software-properties-common
+echo "[ubuntu dependencies] Adding the Ghostty APT repository"
+sudo add-apt-repository --yes ppa:mkasberg/ghostty-ubuntu
+echo "[ubuntu dependencies] Refreshing APT package index"
+sudo apt-get update
+echo "[ubuntu dependencies] Installing packages"
+sudo apt-get install --yes \
+  zsh curl stow git ripgrep vim wget gpg pass ghostty xclip jq unzip tree \
+  build-essential gdb lcov pkg-config bzip2 libffi-dev libgdbm-dev \
+  liblzma-dev libncurses-dev libreadline-dev libsqlite3-dev libssl-dev \
+  uuid-dev zlib1g-dev libzstd-dev

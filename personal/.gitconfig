@@ -1,0 +1,9 @@
+[user]
+	email = beto7299@gmail.com
+	name = Alberto De Saint Malo
+[credential]
+	helper =
+	helper = /usr/local/bin/git-credential-manager
+	credentialStore = gpg
+[credential "https://dev.azure.com"]
+	useHttpPath = true

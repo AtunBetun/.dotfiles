@@ -1,0 +1,16 @@
+#!/usr/bin/bash
+
+set -Eeuo pipefail
+[[ "${DEBUG:-0}" == 1 ]] && set -x
+trap 'status=$?; printf "ERROR [al2] line %s: %s (exit %s)\n" "$LINENO" "$BASH_COMMAND" "$status" >&2' ERR
+
+echo "[al2] Installing Mise tools"
+./modules/mise
+echo "[al2] Installing tmux plugin manager"
+./modules/tmux
+echo "[al2] Stowing AL2 dotfiles"
+./install-dotfiles al2
+
+echo "[al2] Installation complete"
+
+set +e

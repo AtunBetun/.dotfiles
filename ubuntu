@@ -1,10 +1,18 @@
 #!/usr/bin/bash
 
-set -e
+set -Eeuo pipefail
+[[ "${DEBUG:-0}" == 1 ]] && set -x
+trap 'status=$?; printf "ERROR [ubuntu] line %s: %s (exit %s)\n" "$LINENO" "$BASH_COMMAND" "$status" >&2' ERR
 
+echo "[ubuntu] Installing Ubuntu dependencies"
 ./modules/dependencies
-./modules/fzf
-./modules/nvim
-./modules/ohmyzsh
+echo "[ubuntu] Installing Mise tools"
+./modules/mise
+echo "[ubuntu] Installing tmux plugin manager"
+./modules/tmux
+echo "[ubuntu] Stowing Ubuntu dotfiles"
+./install-dotfiles ubuntu
+
+echo "[ubuntu] Installation complete"
 
 set +e

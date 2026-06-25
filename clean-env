@@ -1,8 +1,33 @@
 #!/usr/bin/env zsh
 
-my_array=("bin" "nvim" "tmux" "zsh" "kitty" "aerospace")
+if [[ -z "${1:-}" ]]; then
+    echo "Missing target platform."
+    echo "Usage: $0 {mac|ubuntu}"
+    exit 1
+fi
+
+case "$1" in
+    mac)
+        my_array=("ghostty" "mise" "nvim" "scripts" "sessionizer" "tmux" "zsh" "aerospace")
+        ;;
+    ubuntu)
+        my_array=("ghostty" "mise" "nvim" "personal" "scripts" "sessionizer" "tmux" "zsh")
+        ;;
+    al2)
+        my_array=("mise" "nvim" "scripts" "tmux" "zsh" "amazon")
+        ;;
+    *)
+        echo "Unsupported target platform: $1"
+        echo "Usage: $0 {mac|ubuntu|al2}"
+        exit 1
+        ;;
+esac
 
 for item in "${my_array[@]}"; do
-	echo "Removing $item"
-	stow -D "$item"
+	if [[ -d "$item" ]]; then
+		echo "Removing $item"
+		stow -D "$item" -t "$HOME"
+	else
+		echo "Skipping $item (directory not found)"
+	fi
 done
