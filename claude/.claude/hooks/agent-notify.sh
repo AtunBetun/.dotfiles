@@ -12,8 +12,15 @@
 # and titles the notification with the session name (transcript customTitle).
 #
 # Self-contained: all notify-send logic lives here so it travels via dotfiles.
+#
+# A notification hook must be fire-and-forget: it must ALWAYS exit 0 so Claude
+# Code never surfaces a hook error. Hence we deliberately do NOT use `set -e`
+# or `pipefail` (a grep that finds no customTitle exits non-zero, which would
+# otherwise abort the script before notify-send and report a phantom failure).
+# `set -u` is kept to catch genuine unset-variable typos; every external value
+# is guarded. The script ends with an explicit `exit 0`.
 
-set -euo pipefail
+set -u
 
 # --- args ---------------------------------------------------------------
 state=""
@@ -30,9 +37,18 @@ esac
 
 # --- no-op if we can't notify (e.g. headless box) -----------------------
 command -v notify-send >/dev/null 2>&1 || exit 0
-# Hooks inherit Claude's env, so DISPLAY is normally already set; fall back
-# to the known X11-forwarding display used by the mwinit reminder.
+# notify-send delivers over the session DBus bus (libnotify), NOT over X11 —
+# so DISPLAY is largely irrelevant; the session bus is what matters. A hook
+# (like a cron job) may inherit XDG_RUNTIME_DIR but not DBUS_SESSION_BUS_ADDRESS,
+# so derive the standard per-user bus path when it's unset. DISPLAY is still
+# exported as a harmless fallback for any daemon that does consult it.
 export DISPLAY="${DISPLAY:-localhost:10.0}"
+if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]; then
+    _runtime_dir="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+    if [ -S "${_runtime_dir}/bus" ]; then
+        export DBUS_SESSION_BUS_ADDRESS="unix:path=${_runtime_dir}/bus"
+    fi
+fi
 
 # --- read hook payload from stdin (jq: always installed) ----------------
 payload="$(cat 2>/dev/null || true)"
@@ -99,3 +115,6 @@ notify-send \
     "${icon} ${session_name}" \
     "${body}" \
     2>/dev/null || true
+
+# Always succeed — a notifier must never report a hook failure.
+exit 0
