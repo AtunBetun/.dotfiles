@@ -24,7 +24,9 @@ setopt SHARE_HISTORY
 # =====================
 # COMPLETIONS (must be before tools that use compdef)
 # =====================
+fpath=("$HOME/.local/share/zsh/site-functions" $fpath)
 autoload -Uz compinit && compinit -C
+[[ -r "$HOME/.local/share/zsh/site-functions/_mise" ]] && autoload -Uz _mise && compdef _mise mise
 
 # =====================
 # PATH SETUP
@@ -85,3 +87,10 @@ fi
 command -v entire &>/dev/null && source <(entire completion zsh)
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && command -v kiro &>/dev/null && . "$(kiro --locate-shell-integration-path zsh)"
+
+# opencode
+export PATH=/home/atunbetun/.opencode/bin:$PATH
+export PATH="/home/atunbetun/.bun/bin:$PATH"
+
+# Pi
+export PATH="/home/atunbetun/.local/share/mise/installs/node/26.3.1/bin:$PATH"
