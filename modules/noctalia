@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+[[ "${DEBUG:-0}" == 1 ]] && set -x
+trap 'status=$?; printf "ERROR [noctalia] line %s: %s (exit %s)\n" "$LINENO" "$BASH_COMMAND" "$status" >&2' ERR
+
+if [[ "$(dpkg --print-architecture)" != "amd64" ]]; then
+  printf '%s\n' "[noctalia] The official Noctalia repository only provides amd64 packages." >&2
+  exit 1
+fi
+
+if ! dpkg-query --show --showformat='${db:Status-Status}' nickh-archive-keyring 2>/dev/null | grep -qx installed; then
+  keyring_package=$(mktemp)
+  trap 'rm -f "$keyring_package"' EXIT
+  wget --quiet --output-document="$keyring_package" https://pkg.noctalia.dev/deb/nickh-archive-keyring.deb
+  sudo dpkg --install "$keyring_package"
+fi
+
+echo "[noctalia] Adding the official Noctalia APT repository"
+sudo wget --quiet --output-document=/etc/apt/sources.list.d/noctalia-resolute.sources \
+  https://pkg.noctalia.dev/deb/noctalia-resolute.sources
+sudo apt-get update
+
+echo "[noctalia] Installing Noctalia"
+sudo apt-get install --yes noctalia

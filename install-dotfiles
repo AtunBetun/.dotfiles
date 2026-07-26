@@ -3,7 +3,7 @@ set -e
 
 if [[ -z "${1:-}" ]]; then
     echo "Missing target platform."
-    echo "Usage: $0 {mac|ubuntu}"
+    echo "Usage: $0 {mac|ubuntu|al2}"
     exit 1
 fi
 
@@ -11,8 +11,8 @@ case "$1" in
     mac)
         STOW_FOLDERS=(ghostty mise nvim scripts sessionizer tmux zsh aerospace)
         ;;
-    ubuntu)
-        STOW_FOLDERS=(ghostty mise nvim personal scripts sessionizer tmux zsh)
+        ubuntu)
+            STOW_FOLDERS=(ghostty hyprland mise noctalia nvim personal scripts sessionizer tmux zsh)
         ;;
     al2)
         STOW_FOLDERS=(mise nvim scripts tmux zsh amazon)

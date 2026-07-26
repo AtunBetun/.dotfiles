@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+[[ "${DEBUG:-0}" == 1 ]] && set -x
+trap 'status=$?; printf "ERROR [hyprland] line %s: %s (exit %s)\n" "$LINENO" "$BASH_COMMAND" "$status" >&2' ERR
+
+echo "[hyprland] Installing Hyprland desktop packages"
+sudo apt-get install --yes \
+  hyprland xwayland uwsm \
+  xdg-desktop-portal xdg-desktop-portal-hyprland xdg-desktop-portal-gtk \
+  pipewire pipewire-pulse wireplumber libspa-0.2-bluetooth \
+  grim slurp cliphist wl-clipboard playerctl libnotify-bin fonts-inter fonts-hack

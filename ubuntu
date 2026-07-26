@@ -6,6 +6,10 @@ trap 'status=$?; printf "ERROR [ubuntu] line %s: %s (exit %s)\n" "$LINENO" "$BAS
 
 echo "[ubuntu] Installing Ubuntu dependencies"
 ./modules/dependencies
+echo "[ubuntu] Installing Hyprland desktop"
+./modules/hyprland
+echo "[ubuntu] Installing Noctalia shell"
+./modules/noctalia
 echo "[ubuntu] Installing Mise tools"
 ./modules/mise
 echo "[ubuntu] Installing tmux plugin manager"

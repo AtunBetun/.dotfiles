@@ -11,7 +11,7 @@ case "$1" in
         my_array=("ghostty" "mise" "nvim" "scripts" "sessionizer" "tmux" "zsh" "aerospace")
         ;;
     ubuntu)
-        my_array=("ghostty" "mise" "nvim" "personal" "scripts" "sessionizer" "tmux" "zsh")
+        my_array=("ghostty" "hyprland" "mise" "noctalia" "nvim" "personal" "scripts" "sessionizer" "tmux" "zsh")
         ;;
     al2)
         my_array=("mise" "nvim" "scripts" "tmux" "zsh" "amazon")
