@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+
+set -eu
+
+grim - | wl-copy
+notify-send 'Screenshot copied' 'Full screen captured to the clipboard.'
