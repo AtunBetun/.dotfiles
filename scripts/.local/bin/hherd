@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Thin-client herdr: local herdr connects over SSH to the remote server and
+# streams the UI back, bridging local desktop features (e.g. clipboard paste).
+# Requires herdr installed locally (it is: ~/.local/bin/herdr, matching host).
+#
+# Uses a single fixed session name so you always reconnect to the same session.
+#
+# $: hherd my-host
+#    hherd ssh://you@server:2222
+
+# ~/.local/bin holds herdr but is only PATH'd in interactive zsh; add it here
+# so the non-interactive bash shebang can find the binary.
+export PATH="$HOME/.local/bin:$PATH"
+
+# Single fixed session name so every login reliably reconnects to the same
+# session (Ghostty provides no stable per-window id, and macOS ttys numbers
+# change every login, which previously spawned a fresh empty session each time).
+TNAME="main"
+
+# Server-side keybindings: resolve keys from the remote host's config.toml
+# (default is "local", which ignores the server config and falls back to
+# the Mac's nonexistent local config — i.e. ctrl+b).
+herdr --remote "$1" --session "$TNAME" --remote-keybindings server
+
