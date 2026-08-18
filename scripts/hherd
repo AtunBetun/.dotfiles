@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Thin-client herdr: local herdr connects over SSH to the remote server and
+# streams the UI back, bridging local desktop features (e.g. clipboard paste).
+# Requires herdr installed locally (it is: ~/.local/bin/herdr, matching host).
+#
+# Uses tty/env based session names so you can reliably reconnect to each session.
+#
+# $: hherd my-host
+#    hherd ssh://you@server:2222
+
+# ~/.local/bin holds herdr but is only PATH'd in interactive zsh; add it here
+# so the non-interactive bash shebang can find the binary.
+export PATH="$HOME/.local/bin:$PATH"
+
+# Default to env set by terminator terminal emulator
+TNAME="$TE"
+# Fallback to tty of terminal
+[ -z "$TNAME" ] && TNAME="tty-$(basename "$(tty)")"
+# Sanitize to herdr's allowed charset (ASCII letters, numbers, '.', '_', '-')
+TNAME="${TNAME//[^A-Za-z0-9._-]/-}"
+
+# Server-side keybindings: resolve keys from the remote host's config.toml
+# (default is "local", which ignores the server config and falls back to
+# the Mac's nonexistent local config — i.e. ctrl+b).
+herdr --remote "$1" --session "$TNAME" --remote-keybindings server
