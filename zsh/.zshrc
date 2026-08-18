@@ -33,6 +33,7 @@ autoload -Uz compinit && compinit -C
 # =====================
 export PATH="$HOME/.local/bin:$HOME/.local/share/nvim/mason/bin:/usr/local/go/bin:/usr/local/sbin:$PATH"
 export PATH="$PATH:$HOME/.toolbox/bin"
+export PATH="$HOME/.cargo/bin:$PATH"
 export GOPROXY=direct
 
 # =====================
@@ -94,3 +95,11 @@ export PATH="/home/atunbetun/.bun/bin:$PATH"
 
 # Pi
 export PATH="/home/atunbetun/.local/share/mise/installs/node/26.3.1/bin:$PATH"
+
+# bun completions
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+command -v omp &>/dev/null && eval "$(omp completions zsh)"
