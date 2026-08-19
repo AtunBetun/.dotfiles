@@ -30,6 +30,7 @@ return {
 				"black",
 				"jdtls",
 				"pyright",
+				"gopls",
 				"ruff",
 				"terraform-ls",
 				"docker-language-server",
@@ -112,6 +113,7 @@ return {
 				rust_analyzer = {},
 				tailwindcss = {},
 				dockerls = {},
+				gopls = {},
 				smithy_ls = {},
 				vtsls = {
 					on_init = function(client)

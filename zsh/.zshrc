@@ -35,6 +35,8 @@ export PATH="$HOME/.local/bin:$HOME/.local/share/nvim/mason/bin:/usr/local/go/bi
 export PATH="$PATH:$HOME/.toolbox/bin"
 export PATH="$HOME/.cargo/bin:$PATH"
 export GOPROXY=direct
+[[ -f /home/linuxbrew/.linuxbrew/bin/brew ]] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+[[ -f /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # =====================
 # KEYBINDINGS & ALIASES
@@ -73,8 +75,6 @@ command -v aws_completer &>/dev/null && complete -C aws_completer aws
 [[ -r "$HOME/.config/zsh/amazon.zsh" ]] && source "$HOME/.config/zsh/amazon.zsh"
 
 
-[[ -f /home/linuxbrew/.linuxbrew/bin/brew ]] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-[[ -f /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
 if command -v java &>/dev/null; then
     export JAVA_HOME=$(dirname $(dirname $(realpath "$(command -v java)")))
     export PATH=$JAVA_HOME/bin:$PATH

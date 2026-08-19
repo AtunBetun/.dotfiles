@@ -1,6 +1,0 @@
-#!/usr/bin/env sh
-
-set -eu
-
-grim -g "$(slurp)" - | wl-copy
-notify-send 'Screenshot copied' 'Selected area captured to the clipboard.'
