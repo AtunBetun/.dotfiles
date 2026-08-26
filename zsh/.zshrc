@@ -50,6 +50,9 @@ alias c="claude --dangerously-skip-permissions"
 alias cpwd="pwd | xclip -selection clipboard"
 alias killbg='kill -KILL ${${(v)jobstates##*:*:}%=*}'
 
+[[ -f /home/linuxbrew/.linuxbrew/bin/brew ]] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+[[ -f /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
+
 # =====================
 # FZF
 # =====================
@@ -84,8 +87,6 @@ alias bbra='bbr apollo-pkg'
 alias br='brazil-recursive-cmd-parallel --allPackages -- brazil-build'
 
 
-[[ -f /home/linuxbrew/.linuxbrew/bin/brew ]] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-[[ -f /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
 
 export AWS_EC2_METADATA_DISABLED=true
 
