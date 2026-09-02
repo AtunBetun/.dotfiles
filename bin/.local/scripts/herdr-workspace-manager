@@ -1,0 +1,35 @@
+#!/usr/bin/env zsh
+export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$HOME/.local/share/nvim/mason/bin:/home/linuxbrew/.linuxbrew/bin:$PATH"
+
+while true; do
+    selection=$(herdr workspace list \
+        | jq -r '.result.workspaces[] | [.workspace_id, .label, "\(.tab_count) tabs", "\(.pane_count) panes"] | @tsv' \
+        | fzf --expect=enter,x \
+            --bind='j:down,k:up' \
+            --delimiter='\t' \
+            --with-nth=2.. \
+            --height=90% \
+            --border=sharp \
+            --prompt='Manage Herdr Spaces > ' \
+            --header='enter: focus  x: close workspace')
+
+    [[ -z $selection ]] && exit 0
+
+    action=${selection%%$'\n'*}
+    workspace=${selection#*$'\n'}
+    workspace_id=${workspace%%$'\t'*}
+    workspace_label=${${workspace#*$'\t'}%%$'\t'*}
+
+    case $action in
+        enter)
+            herdr workspace focus "$workspace_id"
+            exit $?
+            ;;
+        x)
+            printf 'Close workspace "%s" and all its panes? [y/N] ' "$workspace_label"
+            read -rk 1 reply
+            printf '\n'
+            [[ $reply == [yY] ]] && herdr workspace close "$workspace_id"
+            ;;
+    esac
+done

@@ -6,9 +6,9 @@ Assess the source against the shared writing standard in [SKILL.md](SKILL.md). D
 
 Return these groups in this order:
 
-- **Truth:** altered, unsupported, contradictory, or lost claims.
-- **Flow:** fragments, missing transitions, broken reasoning, or misplaced sentences.
-- **Finish:** human-centered narration, unnecessary passive wording, empty orientation, bare sequence, spatial metaphor, announcement sentence, interrupted or inverted clause, decorative emphasis, intensifier, rhetorical question, self-referential commentary, repetition, vague wording, grammar, terminology, or notation.
+- **Truth:** altered, unsupported, contradictory, or lost claims; overbroad scope; unsupported inference, causation, guarantee, decision point, or actor attribution.
+- **Flow:** fragments, missing transitions, broken reasoning, misplaced sentences, or unexplained conflicts between levels, stages, records, or rules.
+- **Finish:** human-centered narration, unnecessary passive wording, empty orientation, bare sequence, spatial metaphor, announcement sentence, knowledge-gap inventory, redundant count, vague collective reference, slogan compression, anthropomorphic mechanism, interrupted or inverted clause, decorative emphasis, intensifier, rhetorical question, self-referential commentary, repetition, vague wording, grammar, terminology, or notation.
 
 Under each group, list findings or write `No findings.` Every finding must quote or locate the defective phrase, name the defect, and state the editing action. Do not provide replacement prose unless the user requests edits.
 
