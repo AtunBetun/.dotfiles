@@ -87,9 +87,9 @@ Trial changes with separate `NVIM_APPNAME`/XDG directories; do not delete your e
 
 ## Clipboard
 
-Local Macs use native copy/paste; desktop Linux uses Wayland/X11 providers. Remote Neovim and shell copy use OSC 52 through an attached terminal. Use Cmd-V/system paste into the remote; no remote clipboard reads.
+Local Macs use native copy/paste; desktop Linux uses Wayland/X11 providers. Remote Neovim copy uses OSC 52 through an attached terminal. Use Cmd-V/system paste into the remote; no remote clipboard reads.
 
-`cpwd` copies the working directory. `<leader>y` / `<leader>Y` copy from Neovim. Check both directions, multiline/Unicode text and Herdr selection/image paste from the actual Mac client to AL2 and AL2023. Escape-sequence tests do not certify the laptop clipboard.
+`<leader>y` / `<leader>Y` copy from Neovim. Check both directions, multiline/Unicode text and Herdr selection/image paste from the actual Mac client to AL2 and AL2023. Escape-sequence tests do not certify the laptop clipboard.
 
 ## Mac apps
 

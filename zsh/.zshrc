@@ -58,40 +58,6 @@ alias ll="ls -lh"
 alias la="ls -lAh"
 alias v="nvim ."
 alias c="claude --dangerously-skip-permissions"
-# Copy only: remote paste uses the attached client's normal paste key.
-clipboard-copy() (
-    setopt localoptions pipefail
-    if [[ -z ${SSH_CONNECTION:-}${SSH_TTY:-} ]]; then
-        if [[ $OSTYPE == darwin* ]] && command -v pbcopy &>/dev/null; then
-            exec pbcopy
-        elif [[ -n ${WAYLAND_DISPLAY:-} ]] && command -v wl-copy &>/dev/null; then
-            exec wl-copy
-        elif [[ -n ${DISPLAY:-} ]]; then
-            if command -v xclip &>/dev/null; then
-                exec xclip -selection clipboard
-            elif command -v xsel &>/dev/null; then
-                exec xsel --clipboard --input
-            fi
-        fi
-    fi
-    if [[ -z ${TERM:-} || $TERM == dumb ]]; then
-        print -u2 'clipboard-copy: no desktop clipboard or attached terminal available'
-        return 1
-    fi
-    if { exec 3>/dev/tty; } 2>/dev/null; then
-        :
-    elif [[ -t 1 ]]; then
-        exec 3>&1
-    else
-        print -u2 'clipboard-copy: no desktop clipboard or attached terminal available'
-        return 1
-    fi
-    # OSC 52 support/permission must be verified on the actual client.
-    local payload
-    payload=$(base64 | tr -d '\r\n') || return
-    printf '\033]52;c;%s\a' "$payload" >&3
-)
-cpwd() { printf '%s\n' "$PWD" | clipboard-copy; }
 alias killbg='kill -KILL ${${(v)jobstates##*:*:}%=*}'
 
 
