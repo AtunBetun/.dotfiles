@@ -1,0 +1,13 @@
+[tools]
+"core:python" = "3.12.16"
+"core:go" = "1.25.5"
+"core:java" = "corretto-21.0.13.0.11"
+"core:rust" = { version = "1.90.0", components = ["rustfmt", "rust-analyzer"] }
+"github:herdrdev/herdr" = "0.9.5"
+"aqua:junegunn/fzf" = "0.67.0"
+"aqua:jqlang/jq" = "1.8.2"
+"aqua:BurntSushi/ripgrep" = { version = "15.2.0", libc = "musl" }
+"aqua:sharkdp/fd" = { version = "10.5.0", libc = "musl" }
+"aqua:JohnnyMorganz/StyLua" = { version = "2.5.2", libc = "musl" }
+"cargo:https://github.com/tree-sitter/tree-sitter" = { version = "tag:v0.26.1", crate = "tree-sitter-cli", bin = "tree-sitter", default-features = false, os = "linux" }
+"github:tree-sitter/tree-sitter" = { version = "0.26.1", matching = "tree-sitter-", bin = "tree-sitter", os = "macos" }

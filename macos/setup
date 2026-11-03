@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+[[ $(uname -s) == Darwin ]] || { printf 'Mac applications are macOS-only.\n' >&2; exit 1; }
+command -v brew >/dev/null || { printf 'Install Homebrew using your approved Mac setup first.\n' >&2; exit 1; }
+repo=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
+config_dir=${XDG_CONFIG_HOME:-$HOME/.config}/aerospace
+config="$config_dir/aerospace.toml"
+legacy="$HOME/.aerospace.toml"
+if [[ -e $legacy && -e $config ]]; then
+    printf 'Both AeroSpace config locations exist; reconcile them before setup.\n' >&2
+    exit 1
+fi
+brew bundle install --file="$repo/macos/Brewfile" --no-upgrade
+mkdir -p "$config_dir"
+if [[ -e $legacy ]]; then
+    cp -p "$legacy" "$legacy.before-dotfiles"
+    cp -pL "$legacy" "$config"
+    rm "$legacy"
+fi
+[[ -e $config ]] || cp "$repo/macos/aerospace.toml" "$config"
+printf 'AeroSpace config preserved at %s.\n' "$config"
+printf 'Grant Accessibility to AeroSpace, Scroll Reverser and Caffeine in System Settings.\n'
+printf 'Enable Start at login in each app; keep Scroll Reverser device preferences local.\n'
+printf 'Capture reviewed AeroSpace settings with: cp "%s" "%s/macos/aerospace.toml"\n' "$config" "$repo"

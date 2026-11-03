@@ -10,7 +10,10 @@ return {
 				"javascript",
 				"typescript",
 				"tsx",
-				"c",
+				"go",
+				"gomod",
+				"gowork",
+				"dockerfile",
 				"lua",
 				"luadoc",
 				"rust",
@@ -27,10 +30,14 @@ return {
 				"diff",
 			}
 
-			require("nvim-treesitter").install(parsers)
+			vim.api.nvim_create_user_command("DotfilesParsersInstall", function()
+				assert(require("nvim-treesitter").install(parsers):wait(600000), "Parser installation failed; inspect :messages")
+			end, { desc = "Install parsers for the retained language set" })
 
 			local function treesitter_try_attach(buf, language)
-				if not vim.treesitter.language.add(language) then
+				local loaded, error = vim.treesitter.language.add(language)
+				if not loaded then
+					vim.notify("Treesitter: " .. tostring(error), vim.log.levels.WARN)
 					return
 				end
 				vim.treesitter.start(buf, language)
@@ -41,7 +48,6 @@ return {
 				end
 			end
 
-			local available_parsers = require("nvim-treesitter").get_available()
 
 			vim.api.nvim_create_autocmd("FileType", {
 				callback = function(args)
@@ -53,20 +59,12 @@ return {
 
 					local installed_parsers = require("nvim-treesitter").get_installed("parsers")
 
-					if vim.tbl_contains(installed_parsers, language) then
-						treesitter_try_attach(buf, language)
-					elseif vim.tbl_contains(available_parsers, language) then
-						require("nvim-treesitter").install(language):await(function()
-							treesitter_try_attach(buf, language)
-						end)
-					else
+					if vim.tbl_contains(parsers, language) and vim.tbl_contains(installed_parsers, language) then
 						treesitter_try_attach(buf, language)
 					end
 				end,
 			})
 
-			vim.filetype.add({ extension = { templ = "templ" } })
-			vim.treesitter.language.register("templ", "templ")
 		end,
 	},
 }

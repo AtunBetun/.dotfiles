@@ -1,5 +1,5 @@
-bin/.local/bin
-bin/.local/share
-bin/.local/state
-!bin/.local/bin/twitch-chat
+*.local.toml
+*.local.lock
+.scratch/
+.claude/
 

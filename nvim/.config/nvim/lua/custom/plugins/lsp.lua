@@ -1,5 +1,9 @@
-local function bemol()
-	local bemol_dir = vim.fs.find({ ".bemol" }, { upward = true, type = "directory" })[1]
+local function bemol(bufnr, client)
+	if not client or not client:supports_method("workspace/didChangeWorkspaceFolders") then
+		return
+	end
+	local directory = vim.fs.dirname(vim.api.nvim_buf_get_name(bufnr))
+	local bemol_dir = vim.fs.find({ ".bemol" }, { path = directory, upward = true, type = "directory" })[1]
 	local ws_folders_lsp = {}
 	if bemol_dir then
 		local file = io.open(bemol_dir .. "/ws_root_folders", "r")
@@ -11,43 +15,117 @@ local function bemol()
 		end
 	end
 
+	client.workspace_folders = client.workspace_folders or {}
+	local known, added = {}, {}
+	for _, folder in ipairs(client.workspace_folders) do
+		known[folder.uri] = true
+	end
 	for _, line in ipairs(ws_folders_lsp) do
-		vim.lsp.buf.add_workspace_folder(line)
+		if line ~= "" then
+			local uri = vim.uri_from_fname(line)
+			if not known[uri] then
+				local folder = { uri = uri, name = line }
+				table.insert(client.workspace_folders, folder)
+				table.insert(added, folder)
+				known[uri] = true
+			end
+		end
+	end
+	if #added > 0 then
+		client:notify("workspace/didChangeWorkspaceFolders", { event = { added = added, removed = {} } })
 	end
 end
 
 return {
 	{
 		"williamboman/mason.nvim",
-		opts = {},
+		opts = {
+			PATH = "skip",
+			-- JDTLS download timestamps belong to the registry snapshot, not just the tool version.
+			registries = { "github:mason-org/mason-registry@2026-06-11-hearty-test" },
+		},
 	},
 	{
 		"WhoIsSethDaniel/mason-tool-installer.nvim",
 		dependencies = { "williamboman/mason.nvim" },
 		opts = {
+			run_on_start = false,
+			auto_update = false,
 			ensure_installed = {
-				"stylua",
-				"black",
-				"jdtls",
-				"pyright",
-				"ruff",
-				"terraform-ls",
-				"docker-language-server",
-				"tailwindcss-language-server",
-				"vtsls",
-				"lua-language-server",
-				"rust-analyzer",
-				"smithy-language-server",
+				{ "black", version = "26.5.1" },
+				{ "jdtls", version = "v1.58.0" },
+				{ "pyright", version = "1.1.410" },
+				{ "prettier", version = "3.8.3" },
+				{ "gopls", version = "v0.22.0" },
+				{ "dockerfile-language-server", version = "0.15.0" },
+				{ "tailwindcss-language-server", version = "0.14.29" },
+				{ "vtsls", version = "0.3.0" },
+				{ "lua-language-server", version = "3.18.2" },
+				{ "html-lsp", version = "4.10.0" },
+				{ "css-lsp", version = "4.10.0" },
+				{ "json-lsp", version = "4.10.0" },
 			},
 		},
+		config = function(_, opts)
+			local installer = require("mason-tool-installer")
+			installer.setup(opts)
+			vim.api.nvim_create_user_command("DotfilesToolsInstallSync", function()
+				local function fail(errors)
+					vim.api.nvim_err_writeln("Editor tool installation failed:\n" .. table.concat(errors, "\n") .. "\nInspect :MasonLog")
+					if #vim.api.nvim_list_uis() == 0 then
+						vim.cmd("cquit 1")
+					end
+				end
+				local registry = require("mason-registry")
+				local refreshed, refresh_success = false, false
+				local started, refresh_error = pcall(registry.refresh, function(success)
+					refreshed, refresh_success = true, success
+				end)
+				if not started then
+					fail({ "Registry refresh failed: " .. tostring(refresh_error) })
+					return
+				end
+				if not vim.wait(30000, function() return refreshed end) or not refresh_success then
+					fail({ refreshed and "Registry refresh failed" or "Registry refresh timed out after 30 seconds" })
+					return
+				end
+				local errors = {}
+				for _, tool in ipairs(opts.ensure_installed) do
+					local found = pcall(registry.get_package, tool[1])
+					if not found then
+						table.insert(errors, tool[1] .. " is unavailable in the pinned registry")
+					end
+				end
+				if #errors > 0 then
+					fail(errors)
+					return
+				end
+				local ok, failure = pcall(installer.check_install, false, true)
+				if not ok then
+					table.insert(errors, tostring(failure))
+				end
+				for _, tool in ipairs(opts.ensure_installed) do
+					local found, package = pcall(registry.get_package, tool[1])
+					if not found or not package:is_installed() then
+						table.insert(errors, tool[1] .. " is not installed")
+					elseif package:get_installed_version() ~= tool.version then
+						table.insert(errors, tool[1] .. " does not match pinned " .. tool.version)
+					end
+				end
+				if #errors > 0 then
+					fail(errors)
+					return
+				end
+				vim.notify("All pinned Mason editor tools are installed")
+			end, { desc = "Install pinned tools and fail on partial installation" })
+		end,
 	},
 	{
 		"neovim/nvim-lspconfig",
 		dependencies = {
 			"williamboman/mason.nvim",
 			"mfussenegger/nvim-jdtls",
-			{ "j-hui/fidget.nvim", opts = {} },
-			{ "folke/lazydev.nvim", opts = {} },
+			"saghen/blink.cmp",
 		},
 		config = function()
 			vim.api.nvim_create_autocmd("LspAttach", {
@@ -70,18 +148,18 @@ return {
 					)
 					map("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
 					map("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction", { "n", "x" })
-					map("K", vim.lsp.buf.hover, "Hover Documentation")
+					map("K", function() vim.lsp.buf.hover({ border = "rounded" }) end, "Hover Documentation")
 					map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
 
 					local client = vim.lsp.get_client_by_id(event.data.client_id)
 
 					if client and client:supports_method("textDocument/inlayHint", event.buf) then
 						map("<leader>th", function()
-							vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
+							vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }), { bufnr = event.buf })
 						end, "[T]oggle Inlay [H]ints")
 					end
 
-					bemol()
+					bemol(event.buf, client)
 				end,
 			})
 
@@ -99,17 +177,6 @@ return {
 				virtual_text = true,
 			})
 
-			vim.lsp.handlers["textDocument/hover"] = function(err, result, ctx, config)
-				config = config or {}
-				config.border = "rounded"
-				vim.lsp.handlers.hover(err, result, ctx, config)
-			end
-
-			vim.lsp.handlers["textDocument/signatureHelp"] = function(err, result, ctx, config)
-				config = config or {}
-				config.border = "rounded"
-				vim.lsp.handlers.signature_help(err, result, ctx, config)
-			end
 
 			local servers = {
 				pyright = {},
@@ -117,7 +184,9 @@ return {
 				tailwindcss = {},
 				dockerls = {},
 				gopls = {},
-				smithy_ls = {},
+				html = {},
+				cssls = {},
+				jsonls = {},
 				vtsls = {
 					on_init = function(client)
 						client.server_capabilities.documentFormattingProvider = false
@@ -125,7 +194,6 @@ return {
 					end,
 				},
 				lua_ls = {
-					cmd = { "/home/linuxbrew/.linuxbrew/bin/lua-language-server" },
 					on_init = function(client)
 						if client.workspace_folders then
 							local path = client.workspace_folders[1].name
@@ -153,7 +221,26 @@ return {
 				},
 			}
 
+			local mason_bin = vim.fn.stdpath("data") .. "/mason/bin/"
+			local commands = {
+				pyright = { "pyright-langserver", "--stdio" },
+				rust_analyzer = { "rust-analyzer" },
+				tailwindcss = { "tailwindcss-language-server", "--stdio" },
+				dockerls = { "docker-langserver", "--stdio" },
+				gopls = { "gopls" },
+				html = { "vscode-html-language-server", "--stdio" },
+				cssls = { "vscode-css-language-server", "--stdio" },
+				jsonls = { "vscode-json-language-server", "--stdio" },
+				vtsls = { "vtsls", "--stdio" },
+				lua_ls = { "lua-language-server" },
+			}
+			local capabilities = require("blink.cmp").get_lsp_capabilities()
 			for name, config in pairs(servers) do
+				config.cmd = commands[name]
+				if name ~= "rust_analyzer" then
+					config.cmd[1] = mason_bin .. config.cmd[1]
+				end
+				config.capabilities = capabilities
 				vim.lsp.config(name, config)
 				vim.lsp.enable(name)
 			end

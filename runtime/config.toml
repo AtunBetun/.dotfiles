@@ -1,0 +1,11 @@
+min_version = "2026.11.0"
+include = ["./common.toml"]
+
+[settings]
+auto_install = false
+exec_auto_install = false
+idiomatic_version_file_enable_tools = ["node", "python", "rust"]
+
+[tools]
+"core:node" = "22.22.2"
+"aqua:neovim/neovim" = "0.12.6"

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+repo=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+mise=${MISE_BIN:-$(command -v mise || true)}
+[[ -n $mise ]] || mise="$HOME/.local/bin/mise"
+if [[ $(uname -s) == Linux ]]; then
+    . /etc/os-release
+    [[ ${ID:-} != amzn || ${VERSION_ID:-} != 2 ]] || export MISE_ENV=al2
+fi
+export MISE_CEILING_PATHS="$(dirname -- "$repo")"
+"$mise" -C "$repo" dot status --missing
+export MISE_CEILING_PATHS="$HOME" MISE_AUTO_INSTALL=0 MISE_EXEC_AUTO_INSTALL=0
+"$mise" -C "$HOME" exec -- node -e 'require("node:assert/strict").equal(Buffer.from("portable").toString(), "portable"); console.log(process.version, process.execPath)'
+"$mise" -C "$HOME" exec -- python -c 'import json,sys; assert json.loads("{\"ok\": true}")["ok"] is True; print(sys.version.split()[0],sys.executable)'
+"$mise" -C "$HOME" exec -- bash -euo pipefail -c 'go version; java -version; rustc --version; rustfmt --version; rust-analyzer --version; tree-sitter --version; stylua --version; nvim --version; herdr --version; printf "{\"ok\":true}" | jq -e .ok; printf "portable\n" | rg portable; fd --version; fzf --version'
+"$mise" -C "$HOME" exec -- nvim --headless '+lua if not vim.g.lazy_did_setup or not (vim.lsp.config.pyright and vim.lsp.config.vtsls and vim.lsp.config.rust_analyzer) then vim.cmd("cquit 1") end' '+checkhealth vim.lsp mason conform' '+qa'
+printf 'Runtime checks passed. Verify clipboard and GUI behavior on the actual client; see README.md.\n'

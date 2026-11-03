@@ -9,20 +9,11 @@ settings = "prefix+shift+s"
 goto = "prefix+g"
 workspace_picker = "prefix+w"
 
-[[keys.command]]
-key = "prefix+s"
-type = "popup"
-command = "~/.local/scripts/herdr-workspace-manager"
-description = "manage workspaces"
-width = "80%"
-height = "80%"
-
-
 # Sessionizer: fuzzy-pick a project dir, focus-or-create its workspace.
 [[keys.command]]
 key = "prefix+f"
 type = "popup"
-command = "~/.local/scripts/herdr-sessionizer"
+command = "~/.local/bin/herdr-sessionizer"
 description = "open project workspace"
 width = "80%"
 height = "80%"

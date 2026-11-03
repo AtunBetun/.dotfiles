@@ -24,14 +24,26 @@ setopt SHARE_HISTORY
 # =====================
 # COMPLETIONS (must be before tools that use compdef)
 # =====================
-autoload -Uz compinit && compinit -C
+typeset -a _dotfiles_completion_files
+_dotfiles_completion_files=(${^fpath}/compinit(N))
+if (( ${#_dotfiles_completion_files} )); then
+    autoload -Uz compinit
+    compinit -C
+else
+    print -u2 'dotfiles: compinit is unavailable in this Zsh fpath; completions disabled'
+fi
+unset _dotfiles_completion_files
 
 # =====================
 # PATH SETUP
 # =====================
-export PATH="$HOME/.local/bin:$HOME/.local/share/nvim/mason/bin:/usr/local/go/bin:/usr/local/sbin:$HOME/.local/scripts:$HOME/.dotfiles/scripts:/apollo/env/envImprovement/bin:$PATH"
-export PATH="$PATH:$HOME/.toolbox/bin"
-export GOPROXY=direct
+typeset -U path PATH
+path=("$HOME/.local/bin" $path)
+for _dotfiles_bin in "$HOME/.toolbox/bin" "$HOME/.bun/bin" "$HOME/.opencode/bin"; do
+    [[ -d $_dotfiles_bin ]] && path=("$_dotfiles_bin" $path)
+done
+unset _dotfiles_bin
+command -v brew &>/dev/null && eval "$(brew shellenv)"
 export EDITOR=nvim VISUAL=nvim
 [[ -t 0 ]] && export GPG_TTY="$(tty)"
 
@@ -43,69 +55,115 @@ bindkey ^R history-incremental-search-backward
 bindkey ^S history-incremental-search-forward
 export VI_MODE_SET_CURSOR=true
 
-alias ls="ls --color=auto"
+if [[ $OSTYPE == darwin* ]]; then
+    alias ls='ls -G'
+else
+    alias ls='ls --color=auto'
+fi
 alias l="ls -lah"
 alias ll="ls -lh"
 alias la="ls -lAh"
 alias v="nvim ."
 alias c="claude --dangerously-skip-permissions"
-alias cpwd="pwd | xclip -selection clipboard"
+# Copy only: remote paste uses the attached client's normal paste key.
+clipboard-copy() (
+    setopt localoptions pipefail
+    if [[ -z ${SSH_CONNECTION:-}${SSH_TTY:-} ]]; then
+        if [[ $OSTYPE == darwin* ]] && command -v pbcopy &>/dev/null; then
+            exec pbcopy
+        elif [[ -n ${WAYLAND_DISPLAY:-} ]] && command -v wl-copy &>/dev/null; then
+            exec wl-copy
+        elif [[ -n ${DISPLAY:-} ]]; then
+            if command -v xclip &>/dev/null; then
+                exec xclip -selection clipboard
+            elif command -v xsel &>/dev/null; then
+                exec xsel --clipboard --input
+            fi
+        fi
+    fi
+    if [[ -z ${TERM:-} || $TERM == dumb ]]; then
+        print -u2 'clipboard-copy: no desktop clipboard or attached terminal available'
+        return 1
+    fi
+    if { exec 3>/dev/tty; } 2>/dev/null; then
+        :
+    elif [[ -t 1 ]]; then
+        exec 3>&1
+    else
+        print -u2 'clipboard-copy: no desktop clipboard or attached terminal available'
+        return 1
+    fi
+    # OSC 52 support/permission must be verified on the actual client.
+    local payload
+    payload=$(base64 | tr -d '\r\n') || return
+    printf '\033]52;c;%s\a' "$payload" >&3
+)
+cpwd() { printf '%s\n' "$PWD" | clipboard-copy; }
 alias killbg='kill -KILL ${${(v)jobstates##*:*:}%=*}'
 
-[[ -f /home/linuxbrew/.linuxbrew/bin/brew ]] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-[[ -f /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # =====================
 # FZF
 # =====================
-source <(fzf --zsh)
+if (( $+functions[compdef] )) && command -v fzf &>/dev/null; then
+    source <(fzf --zsh)
+fi
 
 # =====================
 # BASH COMPLETION SUPPORT
 # =====================
-autoload -U +X bashcompinit && bashcompinit
-command -v aws_completer &>/dev/null && complete -C aws_completer aws
+if command -v aws_completer &>/dev/null && (( $+functions[compdef] )); then
+    typeset -a _dotfiles_completion_files
+    _dotfiles_completion_files=(${^fpath}/bashcompinit(N))
+    if (( ${#_dotfiles_completion_files} )); then
+        autoload -Uz bashcompinit
+        bashcompinit
+        complete -C aws_completer aws
+    fi
+    unset _dotfiles_completion_files
+fi
 
 # =====================
 # MISE SETUP
 # =====================
-eval "$(mise activate zsh)"
+if command -v mise &>/dev/null; then
+    _dotfiles_mise_version=$(MISE_NO_CONFIG=1 mise --version)
+    _dotfiles_mise_version=${_dotfiles_mise_version%% *}
+    typeset -a _dotfiles_mise_parts
+    _dotfiles_mise_parts=("${(@s:.:)_dotfiles_mise_version}")
+    if [[ $_dotfiles_mise_version == <->.<->.<-> ]] && \
+        (( _dotfiles_mise_parts[1] > 2026 || (_dotfiles_mise_parts[1] == 2026 && _dotfiles_mise_parts[2] >= 11) )); then
+        eval "$(mise activate zsh)"
+    else
+        print -u2 'dotfiles: mise 2026.11.0 or newer is required; upgrade mise before activation'
+    fi
+    unset _dotfiles_mise_version _dotfiles_mise_parts
+fi
 
 # =====================
 # AMAZON
 # =====================
-alias bb='brazil-build'
-alias bba='brazil-build apollo-pkg'
-alias bre='brazil-runtime-exec'
-alias brc='brazil-recursive-cmd'
-alias brp='brazil-recursive-cmd-parallel'
-alias bws='brazil ws'
-alias bwsuse='bws use -p'
-alias bwscreate='bws create -n'
-alias bbr='brc brazil-build'
-alias bball='brc --allPackages'
-alias bbb='brc --allPackages brazil-build'
-alias bbra='bbr apollo-pkg'
-alias br='brazil-recursive-cmd-parallel --allPackages -- brazil-build'
-
-
-
-export AWS_EC2_METADATA_DISABLED=true
-
-# Syncthing
-if command -v syncthing &>/dev/null && ! pgrep -x syncthing > /dev/null; then
-    nohup bash -c 'while true; do syncthing --no-browser --no-restart; sleep 5; done' > ~/.syncthing.log 2>&1 &
+if [[ ${DOTFILES_WORK:-0} == 1 ]] || command -v brazil &>/dev/null; then
+    [[ -d $HOME/.aim/mcp-servers ]] && path=("$HOME/.aim/mcp-servers" $path)
+    alias bb='brazil-build'
+    alias bba='brazil-build apollo-pkg'
+    alias bre='brazil-runtime-exec'
+    alias brc='brazil-recursive-cmd'
+    alias brp='brazil-recursive-cmd-parallel'
+    alias bws='brazil ws'
+    alias bwsuse='bws use -p'
+    alias bwscreate='bws create -n'
+    alias bbr='brc brazil-build'
+    alias bball='brc --allPackages'
+    alias bbb='brc --allPackages brazil-build'
+    alias bbra='bbr apollo-pkg'
+    alias br='brazil-recursive-cmd-parallel --allPackages -- brazil-build'
+    export AWS_EC2_METADATA_DISABLED=true
 fi
 
-# AIM CLI
-export PATH="$HOME/.aim/mcp-servers:$PATH"
-
-# Bun
-[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-
-source <(entire completion zsh)
-
-# opencode
-export PATH=/home/adesain/.opencode/bin:$PATH
+if (( $+functions[compdef] )); then
+    [[ -s $HOME/.bun/_bun ]] && source "$HOME/.bun/_bun"
+    command -v entire &>/dev/null && source <(entire completion zsh)
+fi
+[[ -r ${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/local.zsh ]] && source "${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/local.zsh"
+true

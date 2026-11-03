@@ -1,3 +1,7 @@
+if vim.env.DOTFILES_WORK ~= "1" and vim.fn.executable("brazil") ~= 1 then
+	return {}
+end
+
 return {
 	url = "ssh://git.amazon.com:2222/pkg/NvimCodeReview",
 	opts = {

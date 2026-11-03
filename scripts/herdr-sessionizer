@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ ${DOTFILES_HERDR_ENV:-0} != 1 ]]; then
+    mise_bin=$(command -v mise || true)
+    [[ -n $mise_bin ]] || mise_bin="$HOME/.local/bin/mise"
+    [[ -x $mise_bin ]] || { printf 'herdr-sessionizer: mise is not installed\n' >&2; exit 1; }
+    script_dir=$(cd -- "$(dirname -- "$0")" && pwd)
+    exec env DOTFILES_HERDR_ENV=1 MISE_CEILING_PATHS="$HOME" MISE_AUTO_INSTALL=0 MISE_EXEC_AUTO_INSTALL=0 \
+        "$mise_bin" -C "$HOME" exec -- bash "$script_dir/herdr-sessionizer" --cwd "$PWD" "$@"
+fi
+if [[ ${1:-} == --cwd ]]; then
+    cd -- "$2"
+    shift 2
+fi
+[[ $# -le 1 ]] || { printf 'Usage: herdr-sessionizer [DIRECTORY]\n' >&2; exit 2; }
+
+if [[ $# == 1 ]]; then
+    selected=$1
+else
+    shopt -s nullglob
+    roots=("$HOME/work" "$HOME/projects")
+    ancestor=$PWD
+    while :; do
+        if [[ -f $ancestor/packageInfo ]]; then
+            roots+=("${ancestor%/*}" "$ancestor/src")
+            break
+        fi
+        [[ $ancestor == / ]] && break
+        ancestor=${ancestor%/*}
+        [[ -n $ancestor ]] || ancestor=/
+    done
+    # Optional machine-local roots, colon-separated, never inferred from OS.
+    if [[ -n ${DOTFILES_PROJECT_ROOTS:-} ]]; then
+        IFS=: read -r -a extra_roots <<< "$DOTFILES_PROJECT_ROOTS"
+        roots+=("${extra_roots[@]}")
+    fi
+    candidates=()
+    for root in "${roots[@]}"; do
+        [[ -d $root ]] || continue
+        for directory in "$root"/*/; do
+            candidates+=("${directory%/}")
+            if [[ -f $directory/packageInfo ]]; then
+                for package in "$directory"src/*/; do
+                    candidates+=("${package%/}")
+                done
+            fi
+        done
+    done
+    [[ ${#candidates[@]} != 0 ]] || { printf 'herdr-sessionizer: no project directories found\n' >&2; exit 0; }
+    temporary=$(mktemp -d)
+    trap 'rm -rf -- "$temporary"' EXIT
+    if printf '%s\0' "${candidates[@]}" | fzf --read0 --print0 --height=90% --border=sharp \
+        --prompt='Open Herdr Space > ' --preview='fd --color=always --max-depth 2 . {}' --preview-window='45%,border-sharp' > "$temporary/selected"; then
+        IFS= read -r -d '' selected < "$temporary/selected"
+        rm -rf -- "$temporary"
+        trap - EXIT
+    else
+        status=$?
+        [[ $status == 1 || $status == 130 ]] && exit 0
+        exit "$status"
+    fi
+fi
+
+[[ -d $selected ]] || { printf 'herdr-sessionizer: not a directory: %s\n' "$selected" >&2; exit 1; }
+selected=$(cd -- "$selected" && pwd -P)
+selected_name=${selected##*/}
+selected_name=${selected_name//./_}
+[[ -n $selected_name ]] || selected_name=root
+
+listing=$(herdr workspace list) || { printf 'herdr-sessionizer: workspace listing failed\n' >&2; exit 1; }
+jq -e '.result.workspaces | type == "array"' <<< "$listing" >/dev/null || {
+    printf 'herdr-sessionizer: invalid workspace listing\n' >&2; exit 1;
+}
+existing=$(jq -r --arg n "$selected_name" '[.result.workspaces[] | select(.label == $n) | .workspace_id][0] // empty' <<< "$listing")
+if [[ -n $existing ]]; then
+    exec herdr workspace focus "$existing"
+else
+    exec herdr workspace create --cwd "$selected" --label "$selected_name" --focus
+fi

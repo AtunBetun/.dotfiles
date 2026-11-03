@@ -1,0 +1,62 @@
+min_version = "2026.11.0"
+
+[settings]
+dotfiles.relative_symlinks = true
+
+[dotfiles]
+"~/.zshrc" = { source = "zsh/.zshrc" }
+"~/.local/bin" = { source = "scripts", mode = "symlink-each" }
+"~/.gitconfig/dotfiles" = { source = "git/include", template = "tera" }
+
+[dotfiles.nvim]
+source = "nvim/.config/nvim"
+variants = [{ default = true, target = "{{ xdg_config_home }}/nvim" }]
+
+[dotfiles.herdr]
+source = "herdr/.config/herdr/config.toml"
+variants = [{ default = true, target = "{{ xdg_config_home }}/herdr/config.toml" }]
+
+[dotfiles.runtime]
+source = "runtime/config.toml"
+variants = [{ default = true, target = "{{ mise_config_dir }}/config.toml" }]
+
+[dotfiles.runtime-lock]
+source = "runtime/mise.lock"
+variants = [{ default = true, target = "{{ mise_config_dir }}/mise.lock" }]
+
+[dotfiles.runtime-common]
+source = "runtime/common.toml"
+variants = [{ default = true, target = "{{ mise_config_dir }}/common.toml" }]
+
+[dotfiles.git]
+source = "git/config"
+variants = [{ default = true, target = "{{ xdg_config_home }}/dotfiles/git/config" }]
+
+[dotfiles.git-work]
+source = "git/work"
+variants = [{ default = true, target = "{{ xdg_config_home }}/dotfiles/git/work" }]
+
+[dotfiles.git-personal]
+source = "git/personal"
+variants = [{ default = true, target = "{{ xdg_config_home }}/dotfiles/git/personal" }]
+
+[tasks.setup]
+description = "Install declared runtimes and deploy dotfiles without overwriting local conflicts"
+run = "./setup"
+
+[tasks.preview]
+run = "mise dot apply --dry-run"
+
+[tasks.check]
+run = "./check"
+
+[tasks.mac-apps]
+description = "Install missing Mac apps without upgrading or removing other software"
+run = "./macos/setup"
+
+[tasks.mac-update]
+run = 'test "$(uname -s)" = Darwin && brew bundle upgrade --file=macos/Brewfile'
+
+[tasks.editor-setup]
+description = "Install locked Neovim plugins and declared language tools explicitly"
+run = 'mise exec -- nvim --headless -u NONE -l "{{ xdg_config_home }}/nvim/setup.lua"'

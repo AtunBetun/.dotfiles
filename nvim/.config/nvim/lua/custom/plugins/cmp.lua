@@ -2,10 +2,8 @@ return {
 	{
 		"saghen/blink.cmp",
 		version = "1.*",
-		dependencies = {
-			{ "L3MON4D3/LuaSnip", version = "v2.*", build = "make install_jsregexp" },
-		},
 		opts = {
+			fuzzy = { implementation = "lua" },
 			keymap = {
 				["<C-n>"] = { "select_next", "fallback" },
 				["<C-p>"] = { "select_prev", "fallback" },
@@ -23,7 +21,6 @@ return {
 			sources = {
 				default = { "lsp", "path", "snippets" },
 			},
-			snippets = { preset = "luasnip" },
 			signature = { enabled = true },
 		},
 	},

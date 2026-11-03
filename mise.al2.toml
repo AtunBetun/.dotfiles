@@ -1,0 +1,7 @@
+[dotfiles.runtime]
+source = "runtime/config.al2.toml"
+variants = [{ default = true, target = "{{ mise_config_dir }}/config.toml" }]
+
+[dotfiles.runtime-lock]
+source = "runtime/mise.al2.lock"
+variants = [{ default = true, target = "{{ mise_config_dir }}/mise.lock" }]

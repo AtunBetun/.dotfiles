@@ -1,25 +1,29 @@
 #!/usr/bin/env bash
-# Thin-client herdr: local herdr connects over SSH to the remote server and
-# streams the UI back, bridging local desktop features (e.g. clipboard paste).
-# Requires herdr installed locally (it is: ~/.local/bin/herdr, matching host).
-#
-# Uses tty/env based session names so you can reliably reconnect to each session.
-#
-# $: hherd my-host
-#    hherd ssh://you@server:2222
+set -euo pipefail
 
-# ~/.local/bin holds herdr but is only PATH'd in interactive zsh; add it here
-# so the non-interactive bash shebang can find the binary.
-export PATH="$HOME/.local/bin:$PATH"
+if [[ $# != 1 || -z $1 || $1 == -* || $1 == *[[:space:]]* ]]; then
+    printf 'Usage: hherd HOST|ssh://USER@HOST:PORT\n' >&2
+    exit 2
+fi
 
-# Default to env set by terminator terminal emulator
-TNAME="$TE"
-# Fallback to tty of terminal
-[ -z "$TNAME" ] && TNAME="tty-$(basename "$(tty)")"
-# Sanitize to herdr's allowed charset (ASCII letters, numbers, '.', '_', '-')
-TNAME="${TNAME//[^A-Za-z0-9._-]/-}"
+mise_bin=$(command -v mise || true)
+[[ -n $mise_bin ]] || mise_bin="$HOME/.local/bin/mise"
+if [[ ! -x $mise_bin ]]; then
+    printf 'hherd: mise is not installed\n' >&2
+    exit 1
+fi
 
-# Server-side keybindings: resolve keys from the remote host's config.toml
-# (default is "local", which ignores the server config and falls back to
-# the Mac's nonexistent local config — i.e. ctrl+b).
-herdr --remote "$1" --session "$TNAME" --remote-keybindings server
+session=${TE:-}
+if [[ -z $session ]]; then
+    terminal=$(tty 2>/dev/null || true)
+    if [[ $terminal == /dev/* ]]; then
+        session="tty-${terminal##*/}"
+    else
+        session=default
+    fi
+fi
+LC_ALL=C
+session=${session//[^A-Za-z0-9._-]/-}
+
+exec env MISE_CEILING_PATHS="$HOME" MISE_AUTO_INSTALL=0 MISE_EXEC_AUTO_INSTALL=0 \
+    "$mise_bin" -C "$HOME" exec -- herdr --remote "$1" --session "$session" --remote-keybindings server
