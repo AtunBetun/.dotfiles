@@ -9,7 +9,7 @@ variants = [{ default = true, target = "{{ mise_config_dir }}/mise.lock" }]
 [tasks.install]
 description = "Install pinned AL2 tools without changing live configuration"
 env = { MISE_CONFIG_DIR = "{{ config_root }}/tools/al2", MISE_ENV = "", MISE_CEILING_PATHS = "{{ config_root }}" }
-run = ["mise plugins install --force asdf:node", "mise plugins install --force asdf:neovim", "mise install --locked"]
+run = "mise install --locked"
 
 [tasks.packages]
 run = ["mise bootstrap packages apply", "sudo yum install -y zsh git gcc gcc-c++ make cmake3 clang-devel llvm-devel unzip"]

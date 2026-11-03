@@ -13,9 +13,7 @@ fi
 
 profile=()
 case "$(uname -s)" in
-    Darwin)
-        [[ $(uname -m) != x86_64 ]] || brew install gnupg pass cmake unzip
-        ;;
+    Darwin) ;;
     Linux)
         . /etc/os-release
         case "$ID:$VERSION_ID" in
@@ -28,6 +26,11 @@ case "$(uname -s)" in
 esac
 
 mise "${profile[@]}" trust
+# Load the manifest so native min_version rejects old mise before package changes.
+mise "${profile[@]}" config ls >/dev/null
+if [[ $(uname -s) == Darwin && $(uname -m) == x86_64 ]]; then
+    brew install gnupg pass cmake unzip
+fi
 mise "${profile[@]}" run packages
 if [[ $(uname -s) == Linux ]]; then
     clang_lib=$(llvm-config --libdir)

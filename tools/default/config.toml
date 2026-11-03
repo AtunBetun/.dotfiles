@@ -3,8 +3,10 @@ include = ["./common.toml"]
 
 [settings]
 auto_install = false
-exec_auto_install = false
 idiomatic_version_file_enable_tools = ["node", "python", "rust"]
+
+[env]
+_.path = { path = "{{ system_brew_prefix }}/bin", position = "append" }
 
 [tools]
 "core:node" = "22.22.2"

@@ -96,16 +96,6 @@ checksum_source = "mise-versions"
 url = "https://github.com/sharkdp/fd/releases/download/v10.5.0/fd-v10.5.0-x86_64-unknown-linux-musl.tar.gz"
 url_api = "https://api.github.com/repos/sharkdp/fd/releases/assets/530481315"
 
-[[tools."asdf:neovim"]]
-version = "ref:022946c802832f938398dfae34b3f277ca9509d4"
-backend = "asdf:neovim"
-specifiers = ["ref:022946c802832f938398dfae34b3f277ca9509d4"]
-
-[[tools."asdf:node"]]
-version = "22.21.1"
-backend = "asdf:node"
-specifiers = ["22.21.1"]
-
 [[tools."cargo:https://github.com/tree-sitter/tree-sitter"]]
 version = "tag:v0.26.1"
 backend = "cargo:https://github.com/tree-sitter/tree-sitter"
@@ -145,6 +135,38 @@ url = "https://dl.google.com/go/go1.25.5.linux-arm64.tar.gz"
 [tools.go."platforms.linux-x64"]
 checksum = "sha256:9e9b755d63b36acf30c12a9a3fc379243714c1c6d3dd72861da637f336ebb35b"
 url = "https://dl.google.com/go/go1.25.5.linux-amd64.tar.gz"
+
+[[tools."http:neovim"]]
+version = "0.12.6"
+backend = "http:neovim"
+specifiers = ["0.12.6"]
+
+[tools."http:neovim".options]
+strip_components = "1"
+
+[tools."http:neovim"."platforms.linux-arm64"]
+checksum = "sha256:9882582da8e51f6ecd43fafc604630ce7fa632238e348e96f6ffb39db01a1de3"
+url = "https://github.com/neovim/neovim/archive/022946c802832f938398dfae34b3f277ca9509d4.tar.gz"
+
+[tools."http:neovim"."platforms.linux-x64"]
+checksum = "sha256:9882582da8e51f6ecd43fafc604630ce7fa632238e348e96f6ffb39db01a1de3"
+url = "https://github.com/neovim/neovim/archive/022946c802832f938398dfae34b3f277ca9509d4.tar.gz"
+
+[[tools."http:node"]]
+version = "22.21.1"
+backend = "http:node"
+specifiers = ["22.21.1"]
+
+[tools."http:node".options]
+strip_components = "1"
+
+[tools."http:node"."platforms.linux-arm64"]
+checksum = "sha256:3b9b7ed6301daa197c3c477884b8edf0facf7740f35ba298177c72dbc39cba10"
+url = "https://d3rnber7ry90et.cloudfront.net/linux-arm64/node-v22.21.1.tar.gz"
+
+[tools."http:node"."platforms.linux-x64"]
+checksum = "sha256:539f947ed849fbaa41ae9b214ec96ab610ba286a076853bd0f3ea199b255de18"
+url = "https://d3rnber7ry90et.cloudfront.net/linux-x86_64/node-v22.21.1.tar.gz"
 
 [[tools.java]]
 version = "corretto-21.0.13.0.11"

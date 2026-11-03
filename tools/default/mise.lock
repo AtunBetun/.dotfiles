@@ -265,6 +265,19 @@ url = "https://dl.google.com/go/go1.25.5.darwin-arm64.tar.gz"
 checksum = "sha256:b69d51bce599e5381a94ce15263ae644ec84667a5ce23d58dc2e63e2c12a9f56"
 url = "https://dl.google.com/go/go1.25.5.darwin-amd64.tar.gz"
 
+[[tools."http:git-credential-manager"]]
+version = "3.0.2"
+backend = "http:git-credential-manager"
+specifiers = ["3.0.2"]
+
+[tools."http:git-credential-manager"."platforms.macos-arm64"]
+checksum = "sha256:2031e8f81683ff0bd835a762e6cfd0831e9d28cdd5a55b10135c73e9498750cc"
+url = "https://github.com/git-ecosystem/git-credential-manager/releases/download/v3.0.2/gcm-osx-arm64-3.0.2.tar.gz"
+
+[tools."http:git-credential-manager"."platforms.macos-x64"]
+checksum = "sha256:a59672ed02fd5e785a4ff89a70890955a958015867995c1079023d3fbc6643b1"
+url = "https://github.com/git-ecosystem/git-credential-manager/releases/download/v3.0.2/gcm-osx-x64-3.0.2.tar.gz"
+
 [[tools.java]]
 version = "corretto-21.0.13.0.11"
 backend = "core:java"

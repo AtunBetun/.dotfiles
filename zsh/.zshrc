@@ -96,6 +96,10 @@ alias killbg='kill -KILL ${${(v)jobstates##*:*:}%=*}'
 
 
 # =====================
+# MISE SETUP
+# =====================
+command -v mise &>/dev/null && eval "$(mise activate zsh)"
+# =====================
 # FZF
 # =====================
 if (( $+functions[compdef] )) && command -v fzf &>/dev/null; then
@@ -111,10 +115,6 @@ if command -v aws_completer &>/dev/null; then
     complete -C aws_completer aws
 fi
 
-# =====================
-# MISE SETUP
-# =====================
-command -v mise &>/dev/null && eval "$(mise activate zsh)"
 
 # =====================
 # AMAZON

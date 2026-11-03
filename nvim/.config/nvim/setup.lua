@@ -1,6 +1,8 @@
 local data = vim.fn.stdpath("data")
 local config = vim.fn.stdpath("config")
-local lock = vim.json.decode(table.concat(vim.fn.readfile(config .. "/lazy-lock.json"), "\n"))
+local lockfile = config .. "/lazy-lock.json"
+local lock_bytes = vim.fn.readfile(lockfile, "b")
+local lock = vim.json.decode(table.concat(lock_bytes, "\n"))
 local lazy = data .. "/lazy/lazy.nvim"
 if not vim.uv.fs_stat(lazy) then
     local result = vim.system({ "git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", lazy }):wait()
@@ -10,11 +12,22 @@ if not vim.uv.fs_stat(lazy) then
 end
 vim.opt.loadplugins = true
 vim.g.dotfiles_setup = true
-vim.cmd.source(config .. "/init.lua")
-require("lazy").install({ wait = true, lockfile = true })
-require("lazy").restore({ wait = true })
+local installed, install_error = pcall(function()
+    vim.cmd.source(config .. "/init.lua")
+    require("lazy").install({ wait = true, lockfile = true })
+end)
+-- Lazy install rewrites every installed pin; restore must use the original file and cache.
+assert(vim.fn.writefile(lock_bytes, lockfile, "b") == 0, "Could not preserve lazy-lock.json")
+assert(installed, install_error)
+local lazy_lock = require("lazy.manage.lock")
+lazy_lock._loaded = false
+lazy_lock.load()
+local restored, restore_error = pcall(require("lazy").restore, { wait = true })
+assert(vim.fn.writefile(lock_bytes, lockfile, "b") == 0, "Could not preserve lazy-lock.json")
+assert(restored, restore_error)
 for name, plugin in pairs(require("lazy.core.config").plugins) do
     assert(plugin._.installed, "Plugin installation failed: " .. name)
+    assert(not require("lazy.core.plugin").has_errors(plugin), "Plugin setup failed: " .. name)
 end
 local registry = require("mason-registry")
 local refreshed

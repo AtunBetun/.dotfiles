@@ -11,3 +11,12 @@
 "aqua:JohnnyMorganz/StyLua" = { version = "2.5.2", libc = "musl" }
 "cargo:https://github.com/tree-sitter/tree-sitter" = { version = "tag:v0.26.1", crate = "tree-sitter-cli", bin = "tree-sitter", default-features = false, os = "linux" }
 "github:tree-sitter/tree-sitter" = { version = "0.26.1", matching = "tree-sitter-", bin = "tree-sitter", os = "macos" }
+
+[tools."http:git-credential-manager"]
+version = "3.0.2"
+bin_path = "."
+os = "macos"
+
+[tools."http:git-credential-manager".platforms]
+macos-x64 = { url = "https://github.com/git-ecosystem/git-credential-manager/releases/download/v3.0.2/gcm-osx-x64-3.0.2.tar.gz", checksum = "sha256:a59672ed02fd5e785a4ff89a70890955a958015867995c1079023d3fbc6643b1" }
+macos-arm64 = { url = "https://github.com/git-ecosystem/git-credential-manager/releases/download/v3.0.2/gcm-osx-arm64-3.0.2.tar.gz", checksum = "sha256:2031e8f81683ff0bd835a762e6cfd0831e9d28cdd5a55b10135c73e9498750cc" }

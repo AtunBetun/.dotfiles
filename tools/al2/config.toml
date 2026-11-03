@@ -3,16 +3,26 @@ include = ["./common.toml"]
 
 [settings]
 auto_install = false
-exec_auto_install = false
 idiomatic_version_file_enable_tools = ["node", "python", "rust"]
 
-[plugins]
-node = "ssh://git.amazon.com/pkg/RtxNode#873e64f1cb11244e1ebfd91fb92420da848c4124"
-neovim = "https://github.com/richin13/asdf-neovim.git#cc53c899a5a830ef6dc2e74afb8ef3b8abf4e51a"
+# Amazon's AL2 artifacts preserve the corporate Node build on both architectures.
+[tools."http:node"]
+version = "22.21.1"
+strip_components = 1
+bin_path = "bin"
 
+[tools."http:node".platforms]
+linux-x64 = { url = "https://d3rnber7ry90et.cloudfront.net/linux-x86_64/node-v22.21.1.tar.gz" }
+linux-arm64 = { url = "https://d3rnber7ry90et.cloudfront.net/linux-arm64/node-v22.21.1.tar.gz" }
 
-[tools]
-# AL2: verified RtxNode release; update only after checking plugin availability.
-"asdf:node" = "22.21.1"
-# Compile the same editor release against the host libc instead of using upstream glibc binaries.
-"asdf:neovim" = "ref:022946c802832f938398dfae34b3f277ca9509d4"
+# Build against the host libc and install the complete editor runtime in the tool directory.
+[tools."http:neovim"]
+version = "0.12.6"
+url = "https://github.com/neovim/neovim/archive/022946c802832f938398dfae34b3f277ca9509d4.tar.gz"
+strip_components = 1
+bin_path = "install/bin"
+postinstall = '''
+set -eu
+cd "$MISE_TOOL_INSTALL_PATH"
+make CMAKE_BUILD_TYPE=Release CMAKE_INSTALL_PREFIX="$MISE_TOOL_INSTALL_PATH/install" install
+'''

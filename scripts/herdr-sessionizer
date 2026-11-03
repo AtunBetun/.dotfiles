@@ -22,15 +22,12 @@ fi
 
 [[ -d $selected ]] || { printf 'herdr-sessionizer: not a directory: %s\n' "$selected" >&2; exit 1; }
 selected=$(cd -- "$selected" && pwd -P)
-selected_name=${selected##*/}
-selected_name=${selected_name//./_}
-[[ -n $selected_name ]] || selected_name=root
 
-existing=$(herdr workspace list | jq -er --arg n "$selected_name" '
+existing=$(herdr workspace list | jq -er --arg n "$selected" '
     if (.result.workspaces | type) != "array" then error("Invalid workspace listing")
     else [.result.workspaces[] | select(.label == $n) | .workspace_id][0] // "" end')
 if [[ -n $existing ]]; then
     exec herdr workspace focus "$existing"
 else
-    exec herdr workspace create --cwd "$selected" --label "$selected_name" --focus
+    exec herdr workspace create --cwd "$selected" --label "$selected" --focus
 fi
