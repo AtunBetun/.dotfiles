@@ -66,59 +66,6 @@ return {
 				{ "json-lsp", version = "4.10.0" },
 			},
 		},
-		config = function(_, opts)
-			local installer = require("mason-tool-installer")
-			installer.setup(opts)
-			vim.api.nvim_create_user_command("DotfilesToolsInstallSync", function()
-				local function fail(errors)
-					vim.api.nvim_err_writeln("Editor tool installation failed:\n" .. table.concat(errors, "\n") .. "\nInspect :MasonLog")
-					if #vim.api.nvim_list_uis() == 0 then
-						vim.cmd("cquit 1")
-					end
-				end
-				local registry = require("mason-registry")
-				local refreshed, refresh_success = false, false
-				local started, refresh_error = pcall(registry.refresh, function(success)
-					refreshed, refresh_success = true, success
-				end)
-				if not started then
-					fail({ "Registry refresh failed: " .. tostring(refresh_error) })
-					return
-				end
-				if not vim.wait(30000, function() return refreshed end) or not refresh_success then
-					fail({ refreshed and "Registry refresh failed" or "Registry refresh timed out after 30 seconds" })
-					return
-				end
-				local errors = {}
-				for _, tool in ipairs(opts.ensure_installed) do
-					local found = pcall(registry.get_package, tool[1])
-					if not found then
-						table.insert(errors, tool[1] .. " is unavailable in the pinned registry")
-					end
-				end
-				if #errors > 0 then
-					fail(errors)
-					return
-				end
-				local ok, failure = pcall(installer.check_install, false, true)
-				if not ok then
-					table.insert(errors, tostring(failure))
-				end
-				for _, tool in ipairs(opts.ensure_installed) do
-					local found, package = pcall(registry.get_package, tool[1])
-					if not found or not package:is_installed() then
-						table.insert(errors, tool[1] .. " is not installed")
-					elseif package:get_installed_version() ~= tool.version then
-						table.insert(errors, tool[1] .. " does not match pinned " .. tool.version)
-					end
-				end
-				if #errors > 0 then
-					fail(errors)
-					return
-				end
-				vim.notify("All pinned Mason editor tools are installed")
-			end, { desc = "Install pinned tools and fail on partial installation" })
-		end,
 	},
 	{
 		"neovim/nvim-lspconfig",

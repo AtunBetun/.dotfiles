@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd -- "$(dirname -- "$0")"
+export PATH="$HOME/.local/bin:$PATH"
+export MISE_ENV=
+export MISE_CEILING_PATHS="$(dirname -- "$PWD")"
+if ! command -v mise >/dev/null; then
+    installer=$(mktemp)
+    trap 'rm -f -- "$installer"' EXIT
+    curl -fsSL https://mise.run -o "$installer"
+    MISE_VERSION=v2026.11.0 sh "$installer"
+fi
+
+profile=()
+case "$(uname -s)" in
+    Darwin)
+        [[ $(uname -m) != x86_64 ]] || brew install gnupg pass cmake unzip
+        ;;
+    Linux)
+        . /etc/os-release
+        case "$ID:$VERSION_ID" in
+            amzn:2) profile=(-E al2) ;;
+            amzn:2023) profile=(-E al2023) ;;
+            *) printf 'Supported Linux systems: AL2 and AL2023\n' >&2; exit 1 ;;
+        esac
+        ;;
+    *) printf 'Supported systems: macOS, AL2 and AL2023\n' >&2; exit 1 ;;
+esac
+
+mise "${profile[@]}" trust
+mise "${profile[@]}" run packages
+if [[ $(uname -s) == Linux ]]; then
+    clang_lib=$(llvm-config --libdir)
+    export LIBCLANG_PATH="$clang_lib"
+fi
+mise "${profile[@]}" run setup
+mise "${profile[@]}" run editor-setup
+mise "${profile[@]}" run check

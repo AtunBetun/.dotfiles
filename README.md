@@ -1,102 +1,107 @@
-# Portable dotfiles
+# Dotfiles
 
-Zsh, Herdr TUI and modular Neovim for macOS, Amazon Linux 2 and Amazon Linux 2023. Mise deploys user configuration and selects pinned tools. Homebrew owns Mac applications. The only deployed scripts are `herdr-sessionizer` and `hherd`.
+Zsh, Herdr TUI and modular Neovim for MacBook Pros, AL2 and AL2023. Mise handles tools, packages and dotfile deployment. No Brewfile or custom setup/check wrappers.
 
-## Setup
+## Set up a machine
 
-Keep an existing SSH session open. Back up your live shell/editor/Herdr config, global mise config, Git config and link destinations outside this repository before cutover. Existing symlinks into this checkout change when you edit their sources.
-
-Prerequisites: Git 2.36+, Bash, Zsh, curl, tar, gzip, unzip and a C compiler. Linux also needs native Clang/LLVM development libraries (Clang 9+; AL2 provides 11.1) for the parser CLI source build; AL2 additionally needs CMake 3.16+ and make for Neovim. Install `clang-devel llvm-devel` through your approved OS provisioning; `llvm-config --libdir` selects the compatible library, or set machine-local `LIBCLANG_PATH`. A newer Linuxbrew libclang can require a newer glibc and fail on AL2. This setup never runs sudo, upgrades the OS or changes your login shell. Preserve AxE/Builder Toolbox/Midway/WSSH setup.
-
-Use the tested mise release, 2026.11.0. If another mise is installed, update that installation deliberately rather than adding a competing executable. The upstream installer supports a pinned release and checksum verification:
+Clone this repository, then run:
 
 ```sh
-curl -fsSL -o install-mise.sh https://mise.run
-# Review the script; follow mise's signed-installer verification for higher assurance.
-MISE_VERSION=v2026.11.0 sh install-mise.sh
-rm install-mise.sh
+./init
 ```
 
-Run from this checkout, wherever it lives:
+`init` installs mise if absent, selects the OS, installs prerequisites, then runs the mise setup, editor setup and checks. AL2 uses Amazon RtxNode and a Neovim source build. AL2023 uses native DNF packages. Mac apps use mise's native cask support. AL2's one `yum install` command remains because mise has no built-in yum manager.
+
+Requirements before bootstrap: Bash, curl, Git checkout and network access. OS packages may prompt for sudo. On a Mac, install Apple's Command Line Tools first; Intel Macs also need Homebrew because mise's native formula manager supports Apple Silicon only. On corporate machines keep AxE, Builder Toolbox, Midway and WSSH setup intact. The bootstrap does not rewrite SSH authentication or change the login shell.
+
+Back up live config before applying. Mise refuses conflicting regular files; compare and move them aside yourself, never use blanket `--force`. Existing symlinks into this checkout reflect source edits immediately.
+
+Native commands, from this checkout:
 
 ```sh
-./setup --dry-run
-./setup
+mise trust
+mise dot apply --dry-run
+mise run setup
 mise run editor-setup
 mise run check
 ```
 
-`MISE_BIN=/path/to/mise ./setup` selects an explicit installation. Setup detects AL2, installs the selected profile from its lockfile before deployment, then links only declared targets. It refuses real-file conflicts rather than deleting or forcing them. Compare and back up a conflicting file before moving it aside. Existing mise overlays stay local; inspect them for obsolete runtime declarations.
+Use `mise -E al2` for those commands on AL2. `init` selects it automatically. To preview the task graph without executing it, put the flag before the task: `mise -E al2 run --dry-run setup`.
 
-AL2 deployment selects `mise.al2.toml`. For direct mise inspection/removal on AL2, use `mise -E al2 dot status` / `mise -E al2 dot unapply --dry-run`. Do not run an unqualified upstream deployment on AL2. `./setup` and `./check` select it automatically.
+## Tool versions
 
-## Runtimes
+| File | What to change |
+| --- | --- |
+| `tools/common.toml` | Python, Go, Java, Rust, Herdr, fzf, jq, fd, ripgrep, Stylua, parser CLI |
+| `tools/default/config.toml` | Mac/AL2023 Node and Neovim |
+| `tools/al2/config.toml` | AL2 Node and Neovim backends/versions |
+| Each profile's `mise.lock` | Generated versions, artifact URLs/checksums where supported |
 
-`runtime/common.toml` owns Python, Go, Java, Rust, Herdr, fzf, jq, ripgrep, fd and Stylua. It selects native tree-sitter CLI on macOS and a source build on Linux because the published Linux binary requires newer glibc than AL2023. `runtime/config.toml` selects upstream Node and Neovim. AL2 uses Amazon RtxNode and source-built Neovim. AL2 Node 22.21.1 is an explicit exception to upstream 22.22.2; these pins are declarations, not automatic upgrades.
+`tools/default/common.toml` and `tools/al2/common.toml` link to the single shared file. The directory is called `tools`, not `mise`: `mise/config.toml` would be auto-discovered as project config and mix the platform definitions.
 
-Both lockfiles record supported architecture artifacts/checksums where their backend provides them. Plugin/source builds pin the plugin or source release, but do not checksum every compiled output. Projects can override runtime defaults. Brazil dependency runtimes remain package-owned; no shared JAVA_HOME or PYTHONPATH is forced. Java LSP resolves the installed global editor JDK separately from the project's build JDK.
+Defaults: Python 3.12.16, Go 1.25.5, Corretto Java 21.0.13, Rust 1.90.0, Herdr 0.9.5, Neovim 0.12.6. Node is 22.22.2 on Mac/AL2023 and 22.21.1 through RtxNode on AL2. Projects can select other versions in their own `mise.toml`.
 
-Interactive shells activate mise; both helpers use the installed global environment independently of the current project's config. Opening a picker/editor does not install missing tools. Change pins and regenerate locks deliberately, then test the changed tools. Do not uninstall unrelated existing versions automatically.
+No downloads/upgrades occur during shell/editor startup. `mise run install` installs the selected pinned profile before replacing live config. Linux builds the parser CLI against native Clang/LLVM because the published binary needs newer glibc than AL2023. Native `clang-devel`/`llvm-devel` supply the compatible library; `init` gets it from `llvm-config`.
 
-## Herdr
+## Herdr helpers
+
+Only two scripts are deployed:
 
 ```sh
-herdr
-herdr-sessionizer                  # choose from ~/work, ~/projects or a Brazil workspace
-herdr-sessionizer 'path with spaces'
-hherd work-host
+herdr-sessionizer 'some/project'   # open/focus this directory
+herdr-sessionizer                  # pick beneath the current directory
+hherd work-host                    # attach using normal SSH
 ```
 
-The picker is bound to `Ctrl-a f`; Herdr's native workspace picker remains `Ctrl-a w`. Optional extra search roots are colon-separated `DOTFILES_PROJECT_ROOTS` in machine-local shell config. `hherd` uses normal SSH authentication and server keybindings. No client/server restart or version update is hidden in these scripts.
+No guessed project roots, usernames or workspace paths. The picker searches three levels under the current directory. It supports spaces; newline-containing names are outside its documented shortcut. Herdr binds it to `Ctrl-a f`; the native workspace picker is `Ctrl-a w`.
+
+`hherd` uses session `main`, or the explicit `TE` value when set, and server-side bindings. Neither helper updates or restarts servers. Both use mise's installed global tools, independent of the current project's configuration.
+
+## Git
+
+Default identity is Alberto De Saint Malo, `adesain@amazon.com`. No remote-URL routing and no blank email override.
+
+Set personal identity explicitly in a personal repository:
+
+```sh
+git config --local user.email beto7299@gmail.com
+```
+
+Existing personal repository-local GCM/pass/GPG settings remain local. Shared dotfiles do not replace credential helpers or distribute host-specific glibc loaders. Keys, tokens, password stores and Midway certificates stay outside Git.
+
+Deployment manages a small block in your existing `.gitconfig`, preserving surrounding settings. If you pasted the previous routing config directly into that file, remove the appended routing block; keep the original work identity and credential settings.
 
 ## Neovim
 
-Kickstart-inspired, not a distribution. Keep `init.lua`, `lua/custom/set.lua`, `remap.lua`, `clipboard.lua` and focused plugin files. Retained languages: Python, Java/Bemol, TypeScript/JavaScript, Go, Rust, Docker/Tailwind/web markup and Lua.
+Kickstart-inspired, retaining separate `set.lua`, `remap.lua`, `clipboard.lua` and focused plugin files. Supports Python, Java/Bemol, TypeScript/JavaScript, Go, Rust, Docker/Tailwind/web markup and Lua.
 
-`mise run editor-setup` bootstraps pinned lazy.nvim, restores plugin commits, installs pinned Mason tools from a pinned registry snapshot and installs the selected parsers. Mason does not own Stylua, Rust's analyzer or rustfmt; mise owns those. Installation errors fail the setup instead of claiming success. Package installations inherit approved npm/pip network configuration; repair expired registry authentication rather than replacing corporate registries globally.
+`mise run editor-setup` installs locked plugins, pinned Mason tools and parsers. Mason pins are in `lua/custom/plugins/lsp.lua`; plugin commits are in `lazy-lock.json`. Installation errors fail setup. Normal startup installs nothing. Java LSP selects the global editor JDK without changing the project's Java environment.
 
-Normal editor startup performs no plugin/tool/parser installation. Use `NVIM_APPNAME=nvim-trial` with separate config/data/cache/state to trial changes without deleting your existing undo/history/plugin data. Work code review loads only with `DOTFILES_WORK=1` or available Brazil tooling.
+Trial changes with separate `NVIM_APPNAME`/XDG directories; do not delete your editor's data/undo history.
 
 ## Clipboard
 
-`cpwd` and shell `clipboard-copy` use pbcopy locally on Macs, a Wayland/X11 provider on desktops, or OSC 52 on an attached terminal. Headless remote hosts do not require xclip or X forwarding. No-client copies fail with a diagnostic. Neovim keeps native local providers and uses remote OSC 52 copy only; remote clipboard reads are disabled. Paste with Cmd-V/system paste.
+Local Macs use native copy/paste; desktop Linux uses Wayland/X11 providers. Remote Neovim and shell copy use OSC 52 through an attached terminal. Use Cmd-V/system paste into the remote; no remote clipboard reads.
 
-Before cutover is accepted, verify from the actual Mac client to both AL2 and AL2023:
+`cpwd` copies the working directory. `<leader>y` / `<leader>Y` copy from Neovim. Check both directions, multiline/Unicode text and Herdr selection/image paste from the actual Mac client to AL2 and AL2023. Escape-sequence tests do not certify the laptop clipboard.
 
-- `<leader>y` in Neovim and `cpwd` reach the Mac clipboard.
-- Multiline text with tabs, Unicode and a trailing newline pastes correctly into the remote editor and shell.
-- Herdr selection copy, detach/reattach and image paste work where used.
+## Mac apps
 
-Use `hherd` / local `herdr --remote` for Herdr's desktop bridge. A successful OSC 52 escape-sequence check alone does not prove the laptop clipboard.
-
-## Amazon and personal Git
-
-Deployment adds a managed include block to your existing `.gitconfig`; it does not replace credential helpers, SSH routing, keys or certificates. Corporate remotes select your work identity; repositories under your personal GitHub account select personal identity. Unclassified repositories get an empty email and must configure one explicitly. Repositories mixing work/personal remotes need repository-local identity.
-
-Personal HTTPS access retains GCM with `credentialStore=gpg`, backed by your initialized pass/GPG store. Configure the GCM helper locally where needed; a machine-specific glibc loader stays machine-local. Private keys, tokens, password stores and Midway material never enter this repository. Work GitFarm/GitLab access remains Midway SSH, not GCM.
-
-Machine-specific shell additions live in `${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/local.zsh`. This file is not deployed or committed.
-
-## Mac applications
+AeroSpace, Scroll Reverser and Caffeine are declared in `[bootstrap.packages]`:
 
 ```sh
-mise run mac-apps
-mise run mac-update               # explicit app updates
+mise bootstrap packages apply --dry-run
+mise bootstrap packages apply
+mise bootstrap packages upgrade
 ```
 
-The Mac-only Brewfile installs AeroSpace, Scroll Reverser and Caffeine plus native prerequisites. `macos/setup` preserves/migrates an existing AeroSpace config and seeds the checked-in config only when none exists. Review and copy your settings back to `macos/aerospace.toml` to share them; device-specific Scroll Reverser settings stay local.
+Existing apps are adopted only when compatible; Homebrew-owned apps remain Homebrew-owned. Mise's formula installer skips Intel Macs: provision GCM/GnuPG/pass/CMake through existing Homebrew there. Casks work on both Mac architectures. No pruning removes unrelated apps.
 
-Grant Accessibility in System Settings and enable each app's own Start at login setting. Existing choices are preserved, not overwritten. AeroSpace is beta/unnotarized and its cask removes quarantine: installation must comply with corporate-managed-device controls. No GUI app starts from `.zshrc`; no Homebrew cleanup removes unrelated packages.
+AeroSpace config is seeded only if absent, preserving its existing supported location. Grant Accessibility in System Settings and enable each app's own Start at login. Device-specific Scroll Reverser preferences stay local. AeroSpace's cask removes quarantine; respect corporate-device controls.
 
-## Recovery
+## Recovery and checks
 
-Preview `mise dot unapply --dry-run` (add `-E al2` on AL2) while the manifest still exists. Unapply removes owned links and its Git include block, not your source files or unrelated configuration. Restore the saved original files/link destinations afterward. Removing a declaration alone does not remove an already deployed target.
-
-Legacy tmux/test/workspace helper files were removed from this repository, not uninstalled from machines or stopped. Remove old live links only after checking their destinations and confirming they are obsolete. Never delete whole Neovim data directories or kill existing Herdr sessions as cleanup.
-
-## Verification
-
-Run `mise run check` after deployment and the editor setup. Permanent editor checks run without plugins:
+Preview `mise dot unapply --dry-run` (add `-E al2` on AL2), then restore backed-up files/link destinations. Unapply removes owned links and the managed Git include; source files and unrelated settings remain.
 
 ```sh
 nvim --headless -u NONE -l nvim/.config/nvim/tests/clipboard.lua
@@ -104,4 +109,4 @@ nvim --headless -u NONE -l nvim/.config/nvim/tests/tool-install.lua
 nvim --headless -u NONE -l nvim/.config/nvim/tests/bemol.lua
 ```
 
-Mac UI permissions, native app behavior and actual laptop clipboard round trips require a Mac session. They are not certified by Linux-only checks.
+Mac GUI permissions and actual laptop clipboard round trips require a Mac session. Linux-only verification cannot certify them.

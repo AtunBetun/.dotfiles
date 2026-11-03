@@ -2,11 +2,31 @@ min_version = "2026.11.0"
 
 [settings]
 dotfiles.relative_symlinks = true
+auto_install = false
+
+[bootstrap.packages]
+"brew-cask:nikitabobko/tap/aerospace" = { os = "macos", adopt = true }
+"brew-cask:scroll-reverser" = { os = "macos", adopt = true }
+"brew-cask:caffeine" = { os = "macos", adopt = true }
+"brew-cask:git-credential-manager" = { os = "macos", adopt = true }
+"brew:gnupg" = { os = "macos" }
+"brew:pass" = { os = "macos" }
+"brew:cmake" = { os = "macos" }
+"brew:unzip" = { os = "macos" }
+"dnf:zsh" = { env = "al2023" }
+"dnf:git" = { env = "al2023" }
+"dnf:gcc" = { env = "al2023" }
+"dnf:gcc-c++" = { env = "al2023" }
+"dnf:make" = { env = "al2023" }
+"dnf:cmake" = { env = "al2023" }
+"dnf:clang-devel" = { env = "al2023" }
+"dnf:llvm-devel" = { env = "al2023" }
+"dnf:unzip" = { env = "al2023" }
 
 [dotfiles]
 "~/.zshrc" = { source = "zsh/.zshrc" }
 "~/.local/bin" = { source = "scripts", mode = "symlink-each" }
-"~/.gitconfig/dotfiles" = { source = "git/include", template = "tera" }
+"~/.gitconfig/dotfiles" = { source = "git/config", template = "tera" }
 
 [dotfiles.nvim]
 source = "nvim/.config/nvim"
@@ -16,47 +36,42 @@ variants = [{ default = true, target = "{{ xdg_config_home }}/nvim" }]
 source = "herdr/.config/herdr/config.toml"
 variants = [{ default = true, target = "{{ xdg_config_home }}/herdr/config.toml" }]
 
-[dotfiles.runtime]
-source = "runtime/config.toml"
+[dotfiles.tools]
+source = "tools/default/config.toml"
 variants = [{ default = true, target = "{{ mise_config_dir }}/config.toml" }]
 
-[dotfiles.runtime-lock]
-source = "runtime/mise.lock"
+[dotfiles.tools-lock]
+source = "tools/default/mise.lock"
 variants = [{ default = true, target = "{{ mise_config_dir }}/mise.lock" }]
 
-[dotfiles.runtime-common]
-source = "runtime/common.toml"
+[dotfiles.tools-common]
+source = "tools/common.toml"
 variants = [{ default = true, target = "{{ mise_config_dir }}/common.toml" }]
 
-[dotfiles.git]
-source = "git/config"
-variants = [{ default = true, target = "{{ xdg_config_home }}/dotfiles/git/config" }]
 
-[dotfiles.git-work]
-source = "git/work"
-variants = [{ default = true, target = "{{ xdg_config_home }}/dotfiles/git/work" }]
+[dotfiles.aerospace]
+source = "macos/aerospace.toml"
+mode = "copy"
+create_if_missing = true
+variants = [{ os = "macos", target = "{% if (xdg_config_home ~ '/aerospace/aerospace.toml') is file %}{{ xdg_config_home }}/aerospace/aerospace.toml{% else %}~/.aerospace.toml{% endif %}" }]
 
-[dotfiles.git-personal]
-source = "git/personal"
-variants = [{ default = true, target = "{{ xdg_config_home }}/dotfiles/git/personal" }]
+[tasks.install]
+description = "Install pinned tools without changing live configuration"
+env = { MISE_CONFIG_DIR = "{{ config_root }}/tools/default", MISE_ENV = "", MISE_CEILING_PATHS = "{{ config_root }}" }
+run = "mise install --locked"
 
 [tasks.setup]
-description = "Install declared runtimes and deploy dotfiles without overwriting local conflicts"
-run = "./setup"
-
-[tasks.preview]
-run = "mise dot apply --dry-run"
+depends = ["install"]
+run = ["mise dot apply", 'mise trust "{{ mise_config_dir }}/config.toml"', "mise dot status --missing"]
 
 [tasks.check]
-run = "./check"
+run = ["mise dot status --missing", "mise doctor"]
 
-[tasks.mac-apps]
-description = "Install missing Mac apps without upgrading or removing other software"
-run = "./macos/setup"
+[tasks.packages]
+run = "mise bootstrap packages apply"
 
 [tasks.mac-update]
-run = 'test "$(uname -s)" = Darwin && brew bundle upgrade --file=macos/Brewfile'
+run = "mise bootstrap packages upgrade"
 
 [tasks.editor-setup]
-description = "Install locked Neovim plugins and declared language tools explicitly"
 run = 'mise exec -- nvim --headless -u NONE -l "{{ xdg_config_home }}/nvim/setup.lua"'

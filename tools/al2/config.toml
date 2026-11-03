@@ -6,9 +6,6 @@ auto_install = false
 exec_auto_install = false
 idiomatic_version_file_enable_tools = ["node", "python", "rust"]
 
-[settings.cargo]
-binstall = false
-
 [plugins]
 node = "ssh://git.amazon.com/pkg/RtxNode#873e64f1cb11244e1ebfd91fb92420da848c4124"
 neovim = "https://github.com/richin13/asdf-neovim.git#cc53c899a5a830ef6dc2e74afb8ef3b8abf4e51a"

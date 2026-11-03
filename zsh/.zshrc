@@ -24,15 +24,8 @@ setopt SHARE_HISTORY
 # =====================
 # COMPLETIONS (must be before tools that use compdef)
 # =====================
-typeset -a _dotfiles_completion_files
-_dotfiles_completion_files=(${^fpath}/compinit(N))
-if (( ${#_dotfiles_completion_files} )); then
-    autoload -Uz compinit
-    compinit -C
-else
-    print -u2 'dotfiles: compinit is unavailable in this Zsh fpath; completions disabled'
-fi
-unset _dotfiles_completion_files
+autoload -Uz compinit
+compinit -C
 
 # =====================
 # PATH SETUP
@@ -112,33 +105,16 @@ fi
 # =====================
 # BASH COMPLETION SUPPORT
 # =====================
-if command -v aws_completer &>/dev/null && (( $+functions[compdef] )); then
-    typeset -a _dotfiles_completion_files
-    _dotfiles_completion_files=(${^fpath}/bashcompinit(N))
-    if (( ${#_dotfiles_completion_files} )); then
-        autoload -Uz bashcompinit
-        bashcompinit
-        complete -C aws_completer aws
-    fi
-    unset _dotfiles_completion_files
+if command -v aws_completer &>/dev/null; then
+    autoload -Uz bashcompinit
+    bashcompinit
+    complete -C aws_completer aws
 fi
 
 # =====================
 # MISE SETUP
 # =====================
-if command -v mise &>/dev/null; then
-    _dotfiles_mise_version=$(MISE_NO_CONFIG=1 mise --version)
-    _dotfiles_mise_version=${_dotfiles_mise_version%% *}
-    typeset -a _dotfiles_mise_parts
-    _dotfiles_mise_parts=("${(@s:.:)_dotfiles_mise_version}")
-    if [[ $_dotfiles_mise_version == <->.<->.<-> ]] && \
-        (( _dotfiles_mise_parts[1] > 2026 || (_dotfiles_mise_parts[1] == 2026 && _dotfiles_mise_parts[2] >= 11) )); then
-        eval "$(mise activate zsh)"
-    else
-        print -u2 'dotfiles: mise 2026.11.0 or newer is required; upgrade mise before activation'
-    fi
-    unset _dotfiles_mise_version _dotfiles_mise_parts
-fi
+command -v mise &>/dev/null && eval "$(mise activate zsh)"
 
 # =====================
 # AMAZON

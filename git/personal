@@ -1,6 +1,0 @@
-[user]
-    name = Alberto De Saint Malo
-    email = beto7299@gmail.com
-[credential "https://github.com"]
-    credentialStore = gpg
-    gitHubAuthModes = device

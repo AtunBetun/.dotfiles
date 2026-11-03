@@ -1,25 +1,7 @@
 [user]
-    useConfigOnly = true
-    email =
+    name = Alberto De Saint Malo
+    email = adesain@amazon.com
+[pull]
+    rebase = true
 [init]
     defaultBranch = main
-[includeIf "hasconfig:remote.*.url:ssh://git.amazon.com/**"]
-    path = work
-[includeIf "hasconfig:remote.*.url:ssh://git.amazon.com:2222/**"]
-    path = work
-[includeIf "hasconfig:remote.*.url:git.amazon.com:*/**"]
-    path = work
-[includeIf "hasconfig:remote.*.url:ssh://git@ssh.gitlab.amazon.dev/**"]
-    path = work
-[includeIf "hasconfig:remote.*.url:ssh://git@ssh.gitlab.aws.dev/**"]
-    path = work
-[includeIf "hasconfig:remote.*.url:git@ssh.gitlab.amazon.dev:*/**"]
-    path = work
-[includeIf "hasconfig:remote.*.url:git@ssh.gitlab.aws.dev:*/**"]
-    path = work
-[includeIf "hasconfig:remote.*.url:https://github.com/AtunBetun/**"]
-    path = personal
-[includeIf "hasconfig:remote.*.url:git@github.com:AtunBetun/**"]
-    path = personal
-[includeIf "hasconfig:remote.*.url:ssh://git@github.com/AtunBetun/**"]
-    path = personal

@@ -6,24 +6,10 @@ if [[ $# != 1 || -z $1 || $1 == -* || $1 == *[[:space:]]* ]]; then
     exit 2
 fi
 
-mise_bin=$(command -v mise || true)
-[[ -n $mise_bin ]] || mise_bin="$HOME/.local/bin/mise"
-if [[ ! -x $mise_bin ]]; then
-    printf 'hherd: mise is not installed\n' >&2
-    exit 1
-fi
+export PATH="$HOME/.local/bin:$PATH"
 
-session=${TE:-}
-if [[ -z $session ]]; then
-    terminal=$(tty 2>/dev/null || true)
-    if [[ $terminal == /dev/* ]]; then
-        session="tty-${terminal##*/}"
-    else
-        session=default
-    fi
-fi
-LC_ALL=C
+session=${TE:-main}
 session=${session//[^A-Za-z0-9._-]/-}
 
-exec env MISE_CEILING_PATHS="$HOME" MISE_AUTO_INSTALL=0 MISE_EXEC_AUTO_INSTALL=0 \
-    "$mise_bin" -C "$HOME" exec -- herdr --remote "$1" --session "$session" --remote-keybindings server
+exec env MISE_CEILING_PATHS="$HOME" mise -C "$HOME" exec -- \
+    herdr --remote "$1" --session "$session" --remote-keybindings server

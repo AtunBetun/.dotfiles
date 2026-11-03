@@ -34,7 +34,7 @@ local launcher = jdtls_share .. "/plugins/org.eclipse.equinox.launcher.jar"
 local configuration = jdtls_share .. "/config"
 local lombok = jdtls_share .. "/lombok.jar"
 if vim.fn.filereadable(launcher) ~= 1 or vim.fn.filereadable(configuration .. "/config.ini") ~= 1 then
-	unavailable("missing Mason jdtls package; run :DotfilesToolsInstallSync")
+	unavailable("missing Mason jdtls package; run mise run editor-setup")
 	return
 end
 
