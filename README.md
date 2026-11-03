@@ -95,13 +95,13 @@ mise bootstrap packages apply
 mise bootstrap packages upgrade
 ```
 
-Existing apps are adopted only when compatible; Homebrew-owned apps remain Homebrew-owned. Mise's formula installer skips Intel Macs: provision GCM/GnuPG/pass/CMake through existing Homebrew there. Casks work on both Mac architectures. No pruning removes unrelated apps.
+Existing apps are adopted only when compatible; Homebrew-owned apps remain Homebrew-owned. Mise's formula installer skips Intel Macs: provision GnuPG/pass/CMake through existing Homebrew there. GCM and app casks work on both Mac architectures. No pruning removes unrelated apps.
 
 AeroSpace config is seeded only if absent, preserving its existing supported location. Grant Accessibility in System Settings and enable each app's own Start at login. Device-specific Scroll Reverser preferences stay local. AeroSpace's cask removes quarantine; respect corporate-device controls.
 
 ## Recovery and checks
 
-Preview `mise dot unapply --dry-run` (add `-E al2` on AL2), then restore backed-up files/link destinations. Unapply removes owned links and the managed Git include; source files and unrelated settings remain.
+Preview `mise dot unapply --dry-run` (add `-E al2` on AL2), then restore backed-up files/link destinations. Unapply removes owned links and the managed Git block; source files and unrelated settings remain.
 
 ```sh
 nvim --headless -u NONE -l nvim/.config/nvim/tests/clipboard.lua
