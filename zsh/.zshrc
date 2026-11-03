@@ -32,6 +32,7 @@ autoload -Uz compinit && compinit -C
 export PATH="$HOME/.local/bin:$HOME/.local/share/nvim/mason/bin:/usr/local/go/bin:/usr/local/sbin:$HOME/.local/scripts:$HOME/.dotfiles/scripts:/apollo/env/envImprovement/bin:$PATH"
 export PATH="$PATH:$HOME/.toolbox/bin"
 export GOPROXY=direct
+export EDITOR=nvim VISUAL=nvim
 
 # =====================
 # KEYBINDINGS & ALIASES
@@ -104,3 +105,6 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
 source <(entire completion zsh)
+
+# opencode
+export PATH=/home/adesain/.opencode/bin:$PATH
