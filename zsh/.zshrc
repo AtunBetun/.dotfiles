@@ -33,6 +33,7 @@ export PATH="$HOME/.local/bin:$HOME/.local/share/nvim/mason/bin:/usr/local/go/bi
 export PATH="$PATH:$HOME/.toolbox/bin"
 export GOPROXY=direct
 export EDITOR=nvim VISUAL=nvim
+[[ -t 0 ]] && export GPG_TTY="$(tty)"
 
 # =====================
 # KEYBINDINGS & ALIASES
