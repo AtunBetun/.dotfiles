@@ -10,7 +10,9 @@ Clone this repository, then run:
 ./init
 ```
 
-`init` installs mise if absent, selects the OS, loads the manifest to enforce mise's minimum version before installing prerequisites, then runs the mise setup, editor setup and checks. An existing mise older than 2026.11.0 fails without being upgraded; update a corporate-managed installation through its approved channel. AL2 uses native mise archive downloads of Amazon-compatible Node binaries and a pinned Neovim source build; no legacy runtime plugins or wrappers. AL2023 uses native DNF packages. Mac apps use mise's native cask support. AL2's one `yum install` command remains because mise has no built-in yum manager.
+`init` selects the OS and installs mise v2026.11.0 only if absent. It loads the manifest to enforce mise's minimum version before installing prerequisites, then runs the native mise setup, editor setup and checks. An existing mise older than 2026.11.0 fails without being upgraded; update a corporate-managed installation through its approved channel. AL2 uses native mise archive downloads of Amazon-compatible Node binaries and a pinned Neovim source build; no legacy runtime plugins or wrappers. AL2023 uses native DNF packages. Mac apps use mise's native cask support. AL2's one `yum install` command remains because mise has no built-in yum manager.
+
+The bootstrap prints the selected OS, profile, checkout and mise version, then shows native package status, package commands and the selected profile's tool versions before installation. Its plain-text progress bar counts completed stages, not elapsed time: each stage reports started, done or failed, followed by a summary. Native installer output and task timings remain visible, including sudo prompts. A failed command stops setup at that stage and preserves its exit code.
 
 Requirements before bootstrap: Bash, curl, Git checkout and network access. OS packages may prompt for sudo. On a Mac, install Apple's Command Line Tools first; Intel Macs also need Homebrew because mise's native formula manager supports Apple Silicon only. On corporate machines keep AxE, Builder Toolbox, Midway and WSSH setup intact. The bootstrap does not rewrite SSH authentication or change the login shell.
 
@@ -79,6 +81,8 @@ Kickstart-inspired, retaining separate `set.lua`, `remap.lua`, `clipboard.lua` a
 
 `mise run editor-setup` installs locked plugins, pinned Mason tools and parsers. Mason pins are in `lua/custom/plugins/lsp.lua`; plugin commits are in `lazy-lock.json`. Installation errors fail setup. Normal startup installs nothing. Java LSP selects the global editor JDK without changing the project's Java environment.
 
+On Amazon machines, npm `E401` during editor setup can mean expired CodeArtifact credentials. Refresh them with `harmony npm`, then rerun `./init`; it retains the corporate registry. See [CodeArtifact authentication guidance](https://docs.hub.amazon.dev/docs/gitlab/user-guide/howto/codeartifact/#troubleshooting-the-harmony-cli-installation).
+
 Trial changes with separate `NVIM_APPNAME`/XDG directories; do not delete your editor's data/undo history.
 
 ## Clipboard
@@ -105,7 +109,11 @@ AeroSpace config is seeded only if absent, preserving its existing supported loc
 
 ## Recovery and checks
 
-Preview `mise dot unapply --dry-run` (add `-E al2` on AL2), then restore backed-up files/link destinations. Unapply removes owned links and the managed Git block; source files and unrelated settings remain.
+Follow [the cleanup plan](cleanup-plan.md) before retiring old dotfiles. Preserve the existing recovery backup, credentials, SSH/GPG/password stores, Neovim undo/history/Mason state and Herdr sessions. Back up the live mise and Git configs plus the actual targets of affected symlinks. Quarantine confirmed unused Oh My Zsh and tmux plugin directories rather than deleting them; remove only dotfile-owned obsolete links and the legacy `dotnet`, `node`, `poetry` and `tmux` mise plugin registrations, not unrelated tools or project-required Python versions.
+
+Relocate the backed-up regular mise global config before native deployment; never force a conflict. After cleanup, run `./init`, inspect deployment status and the two helper links, check effective Git emails, and confirm editor setup and preserved state.
+
+Preview `mise dot unapply --dry-run` (add `-E al2` on AL2), then restore backed-up files, recorded symlink destinations and quarantined directories without overwriting newer user changes. Unapply removes owned links and the managed Git block; source files and unrelated settings remain. Keep both recovery backups until the installed setup and preserved state have been checked.
 
 ```sh
 nvim --headless -u NONE -l nvim/.config/nvim/tests/clipboard.lua

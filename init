@@ -4,38 +4,129 @@ cd -- "$(dirname -- "$0")"
 export PATH="$HOME/.local/bin:$PATH"
 export MISE_ENV=
 export MISE_CEILING_PATHS="$(dirname -- "$PWD")"
-if ! command -v mise >/dev/null; then
-    installer=$(mktemp)
-    trap 'rm -f -- "$installer"' EXIT
-    curl -fsSL https://mise.run -o "$installer"
-    MISE_VERSION=v2026.11.0 sh "$installer"
-fi
 
-profile=()
-case "$(uname -s)" in
-    Darwin) ;;
+os=$(uname -s)
+arch=$(uname -m)
+tool_profile="$PWD/tools/default"
+profile_name=default
+case "$os" in
+    Darwin) os_name=macOS ;;
     Linux)
         . /etc/os-release
         case "$ID:$VERSION_ID" in
-            amzn:2) profile=(-E al2) ;;
-            amzn:2023) profile=(-E al2023) ;;
+            amzn:2)
+                export MISE_ENV=al2
+                tool_profile="$PWD/tools/al2"
+                profile_name=al2
+                os_name=AL2
+                ;;
+            amzn:2023)
+                export MISE_ENV=al2023
+                profile_name=al2023
+                os_name=AL2023
+                ;;
             *) printf 'Supported Linux systems: AL2 and AL2023\n' >&2; exit 1 ;;
         esac
         ;;
     *) printf 'Supported systems: macOS, AL2 and AL2023\n' >&2; exit 1 ;;
 esac
 
-mise "${profile[@]}" trust
-# Load the manifest so native min_version rejects old mise before package changes.
-mise "${profile[@]}" config ls >/dev/null
-if [[ $(uname -s) == Darwin && $(uname -m) == x86_64 ]]; then
+completed=0
+total=7
+[[ $os != Linux ]] || total=8
+current_stage=
+installer=
+
+progress() {
+    local status=$1 index=$2 filled=$((completed * 20 / total))
+    local bar='####################' empty='....................'
+    printf '[%s%s] %3d%% | %s %d/%d: %s\n' \
+        "${bar:0:filled}" "${empty:filled}" "$((completed * 100 / total))" \
+        "$status" "$index" "$total" "$current_stage"
+}
+
+stage() {
+    current_stage=$1
+    printf '\n'
+    progress started "$((completed + 1))"
+}
+
+done_stage() {
+    completed=$((completed + 1))
+    progress done "$completed"
+}
+
+fail_stage() {
+    local status=$1
+    progress failed "$((completed + 1))" >&2
+    printf 'Summary: %d/%d stages completed; %s failed (exit %d). No later stage ran.\n' \
+        "$completed" "$total" "$current_stage" "$status" >&2
+    exit "$status"
+}
+
+trap 'fail_stage "$?"' ERR
+trap 'if [[ -n $installer ]]; then rm -f -- "$installer"; fi' EXIT
+
+printf 'Dotfiles setup\nOS: %s (%s)\nProfile: %s\nRepository: %s\n' \
+    "$os_name" "$arch" "$profile_name" "$PWD"
+printf 'Progress counts completed stages, not elapsed time or download bytes.\n'
+
+stage 'Ensure mise is available'
+if ! command -v mise >/dev/null; then
+    printf 'Installing mise v2026.11.0 from https://mise.run\n'
+    installer=$(mktemp)
+    curl -fsSL https://mise.run -o "$installer"
+    MISE_VERSION=v2026.11.0 sh "$installer"
+else
+    printf 'Using existing mise; no automatic upgrade.\n'
+fi
+mise --version
+done_stage
+
+stage 'Trust and load manifest (minimum mise version)'
+mise trust
+# Reject old mise before any package changes.
+mise config ls
+done_stage
+
+stage 'Show declared packages and pinned tools'
+printf 'Native package status:\n'
+mise bootstrap packages status
+printf '\nSelected package commands (preview only):\n'
+mise run --dry-run packages
+if [[ $os == Darwin && $arch == x86_64 ]]; then
+    printf 'Intel Homebrew prerequisites: brew install gnupg pass cmake unzip\n'
+fi
+printf '\nTool profile: %s\n' "$tool_profile"
+MISE_CONFIG_DIR="$tool_profile" MISE_ENV= MISE_CEILING_PATHS="$PWD" mise ls --current
+done_stage
+
+stage 'Install native OS packages'
+if [[ $os == Darwin && $arch == x86_64 ]]; then
     brew install gnupg pass cmake unzip
 fi
-mise "${profile[@]}" run packages
-if [[ $(uname -s) == Linux ]]; then
+mise run --output=interleave --timings packages
+done_stage
+
+if [[ $os == Linux ]]; then
+    stage 'Locate native LLVM library'
     clang_lib=$(llvm-config --libdir)
     export LIBCLANG_PATH="$clang_lib"
+    printf 'LIBCLANG_PATH: %s\n' "$LIBCLANG_PATH"
+    done_stage
 fi
-mise "${profile[@]}" run setup
-mise "${profile[@]}" run editor-setup
-mise "${profile[@]}" run check
+
+stage 'Install pinned tools and apply dotfiles'
+mise run --output=interleave --timings setup
+done_stage
+
+stage 'Set up editor plugins, tools and parsers'
+mise run --output=interleave --timings editor-setup
+done_stage
+
+stage 'Check deployed configuration'
+mise run --output=interleave --timings check
+done_stage
+
+printf '\nSummary: %d/%d stages completed successfully (%s, profile %s).\n' \
+    "$completed" "$total" "$os_name" "$profile_name"
