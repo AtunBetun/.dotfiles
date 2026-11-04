@@ -9,6 +9,12 @@ settings = "prefix+shift+s"
 goto = "prefix+g"
 workspace_picker = ["prefix+w", "prefix+s"]
 
+# Workspace picker: j/k select workspaces; h/l keep moving between panes.
+navigate_workspace_up = ["up", "k"]
+navigate_workspace_down = ["down", "j"]
+navigate_pane_up = "ctrl+k"
+navigate_pane_down = "ctrl+j"
+
 # Sessionizer: fuzzy-pick a project dir, focus-or-create its workspace.
 [[keys.command]]
 key = "prefix+f"
