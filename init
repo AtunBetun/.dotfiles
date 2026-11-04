@@ -9,8 +9,23 @@ os=$(uname -s)
 arch=$(uname -m)
 tool_profile="$PWD/tools/default"
 profile_name=default
+aerospace_install=false
 case "$os" in
-    Darwin) os_name=macOS ;;
+    Darwin)
+        os_name=macOS
+        printf 'Git config: [1] AtunBetun (default) [2] Amazon\n'
+        read -r -p 'Choose Git identity [1]: ' answer || answer=
+        case "$answer" in
+            2|amazon|Amazon|AMAZON|a|A) export MISE_ENV=git-amazon ;;
+        esac
+        read -r -p 'Install AeroSpace and its config? [y/N] ' answer || answer=
+        case "$answer" in
+            y|Y|yes|YES|Yes)
+                aerospace_install=true
+                export MISE_ENV="${MISE_ENV:+$MISE_ENV,}aerospace"
+                ;;
+        esac
+        ;;
     Linux)
         . /etc/os-release
         case "$ID:$VERSION_ID" in
@@ -106,6 +121,9 @@ if [[ $os == Darwin && $arch == x86_64 ]]; then
     brew install gnupg pass cmake unzip
 fi
 mise run --output=interleave --timings packages
+if [[ $os == Darwin && $aerospace_install == true ]]; then
+    mise bootstrap packages apply brew-cask:nikitabobko/tap/aerospace
+fi
 done_stage
 
 if [[ $os == Linux ]]; then

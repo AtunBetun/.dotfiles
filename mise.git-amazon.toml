@@ -1,0 +1,2 @@
+[dotfiles]
+"~/.gitconfig/dotfiles" = { source = "git/config.amazon", template = "tera" }

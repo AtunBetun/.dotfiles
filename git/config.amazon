@@ -1,0 +1,7 @@
+[user]
+    name = Alberto De Saint Malo
+    email = adesain@amazon.com
+[pull]
+    rebase = true
+[init]
+    defaultBranch = main

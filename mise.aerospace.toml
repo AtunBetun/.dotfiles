@@ -1,0 +1,5 @@
+[dotfiles.aerospace]
+source = "macos/aerospace.toml"
+mode = "copy"
+create_if_missing = true
+variants = [{ os = "macos", target = "{% if (xdg_config_home ~ '/aerospace/aerospace.toml') is file %}{{ xdg_config_home }}/aerospace/aerospace.toml{% else %}~/.aerospace.toml{% endif %}" }]

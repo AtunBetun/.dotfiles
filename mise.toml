@@ -5,7 +5,6 @@ dotfiles.relative_symlinks = true
 auto_install = false
 
 [bootstrap.packages]
-"brew-cask:nikitabobko/tap/aerospace" = { os = "macos", adopt = true }
 "brew-cask:scroll-reverser" = { os = "macos", adopt = true }
 "brew-cask:caffeine" = { os = "macos", adopt = true }
 "brew:gnupg" = { os = "macos" }
@@ -48,12 +47,6 @@ variants = [{ default = true, target = "{{ mise_config_dir }}/mise.lock" }]
 source = "tools/common.toml"
 variants = [{ default = true, target = "{{ mise_config_dir }}/common.toml" }]
 
-
-[dotfiles.aerospace]
-source = "macos/aerospace.toml"
-mode = "copy"
-create_if_missing = true
-variants = [{ os = "macos", target = "{% if (xdg_config_home ~ '/aerospace/aerospace.toml') is file %}{{ xdg_config_home }}/aerospace/aerospace.toml{% else %}~/.aerospace.toml{% endif %}" }]
 
 [dotfiles.ghostty]
 source = "macos/ghostty.config"

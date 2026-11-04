@@ -44,7 +44,7 @@ cat > "$fixture/bin/brew" <<'SH'
 printf 'brew %s\n' "$*" >> "$COMMAND_LOG"
 SH
 chmod +x "$fixture/bin/uname" "$fixture/bin/mise" "$fixture/bin/brew"
-printf 'sudo-input\n' > "$fixture/stdin"
+printf '\n\nsudo-input\n' > "$fixture/stdin"
 
 assert_contains() {
     if ! grep -Fq -- "$2" "$1"; then
@@ -80,6 +80,7 @@ assert_contains "$fixture/output" 'native stderr output'
 assert_contains "$fixture/commands" 'brew install gnupg pass cmake unzip'
 assert_absent "$fixture/commands" 'mise install'
 assert_absent "$fixture/commands" 'mise -E'
+assert_absent "$fixture/commands" 'brew-cask:nikitabobko/tap/aerospace'
 
 run_init 'config ls'
 [[ $status == 37 ]]

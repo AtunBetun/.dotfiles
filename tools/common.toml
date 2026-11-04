@@ -1,6 +1,6 @@
 [tools]
 "core:python" = "3.12.16"
-"core:go" = "1.25.5"
+"core:go" = "1.27.3"
 "core:java" = "corretto-21.0.13.0.11"
 "core:rust" = { version = "1.90.0", components = ["rustfmt", "rust-analyzer"] }
 "github:herdrdev/herdr" = "0.9.5"
