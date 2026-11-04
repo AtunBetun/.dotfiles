@@ -31,7 +31,10 @@ return {
 			}
 
 			vim.api.nvim_create_user_command("DotfilesParsersInstall", function()
-				assert(require("nvim-treesitter").install(parsers):wait(600000), "Parser installation failed; inspect :messages")
+				assert(
+					require("nvim-treesitter").install(parsers):wait(600000),
+					"Parser installation failed; inspect :messages"
+				)
 			end, { desc = "Install parsers for the retained language set" })
 
 			local function treesitter_try_attach(buf, language)
@@ -48,7 +51,6 @@ return {
 				end
 			end
 
-
 			vim.api.nvim_create_autocmd("FileType", {
 				callback = function(args)
 					local buf, filetype = args.buf, args.match
@@ -64,7 +66,6 @@ return {
 					end
 				end,
 			})
-
 		end,
 	},
 }

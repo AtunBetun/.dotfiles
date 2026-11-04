@@ -95,14 +95,19 @@ return {
 					)
 					map("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
 					map("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction", { "n", "x" })
-					map("K", function() vim.lsp.buf.hover({ border = "rounded" }) end, "Hover Documentation")
+					map("K", function()
+						vim.lsp.buf.hover({ border = "rounded" })
+					end, "Hover Documentation")
 					map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
 
 					local client = vim.lsp.get_client_by_id(event.data.client_id)
 
 					if client and client:supports_method("textDocument/inlayHint", event.buf) then
 						map("<leader>th", function()
-							vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }), { bufnr = event.buf })
+							vim.lsp.inlay_hint.enable(
+								not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }),
+								{ bufnr = event.buf }
+							)
 						end, "[T]oggle Inlay [H]ints")
 					end
 
@@ -123,7 +128,6 @@ return {
 				underline = { severity = { min = vim.diagnostic.severity.WARN } },
 				virtual_text = true,
 			})
-
 
 			local servers = {
 				pyright = {},

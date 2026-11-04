@@ -10,8 +10,24 @@ if [[ $# == 1 ]]; then
     selected=$1
 else
     status=0
-    # shortcut: newline-containing directory names are unsupported; use a NUL picker if needed.
-    selected=$(fd --type directory --max-depth 3 --color never . "$PWD" | \
+    shopt -s nullglob dotglob
+    roots=("$HOME" "$HOME/work" "$HOME/personal" "$HOME/workplace" "/workplace/$(id -un)")
+    candidates=()
+    for root in "${roots[@]}"; do
+        [[ -d $root ]] || continue
+        for directory in "$root"/*/; do
+            [[ -d $directory ]] || continue
+            candidates+=("${directory%/}")
+            if [[ $root == "$HOME/workplace" || $root == /workplace/* ]]; then
+                for project in "$directory"src/*/; do
+                    [[ -d $project ]] && candidates+=("${project%/}")
+                done
+            fi
+        done
+    done
+    [[ ${#candidates[@]} -gt 0 ]] || { printf 'herdr-sessionizer: no directories found\n' >&2; exit 0; }
+    # Directory names containing newlines are unsupported by this picker.
+    selected=$(printf '%s\n' "${candidates[@]}" | \
         fzf --height=90% --border=sharp --prompt='Open Herdr Space > ') || status=$?
     case $status in
         0) ;;

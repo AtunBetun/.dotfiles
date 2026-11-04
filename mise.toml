@@ -24,7 +24,8 @@ auto_install = false
 
 [dotfiles]
 "~/.zshrc" = { source = "zsh/.zshrc" }
-"~/.local/bin" = { source = "scripts", mode = "symlink-each" }
+"~/.local/bin/herdr-sessionizer" = { source = "scripts/herdr-sessionizer" }
+"~/.local/bin/hherd" = { source = "scripts/hherd" }
 "~/.gitconfig/dotfiles" = { source = "git/config", template = "tera" }
 
 [dotfiles.nvim]

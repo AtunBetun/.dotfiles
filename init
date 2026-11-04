@@ -78,7 +78,7 @@ if ! command -v mise >/dev/null; then
     curl -fsSL https://mise.run -o "$installer"
     MISE_VERSION=v2026.11.0 sh "$installer"
 else
-    printf 'Using existing mise; no automatic upgrade.\n'
+    printf 'Using existing mise; self-update follows its configured schedule.\n'
 fi
 mise --version
 done_stage

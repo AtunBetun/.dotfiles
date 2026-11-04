@@ -15,9 +15,22 @@ return {
 		notify_on_error = true,
 		format_on_save = function(bufnr)
 			local filetype = vim.bo[bufnr].filetype
-			local selected = { lua = true, python = true, java = true, rust = true, go = true,
-				javascript = true, javascriptreact = true, typescript = true, typescriptreact = true,
-				html = true, css = true, json = true, jsonc = true, markdown = true }
+			local selected = {
+				lua = true,
+				python = true,
+				java = true,
+				rust = true,
+				go = true,
+				javascript = true,
+				javascriptreact = true,
+				typescript = true,
+				typescriptreact = true,
+				html = true,
+				css = true,
+				json = true,
+				jsonc = true,
+				markdown = true,
+			}
 			if not selected[filetype] then
 				return
 			end

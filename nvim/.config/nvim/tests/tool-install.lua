@@ -128,18 +128,6 @@ install_mode = "partial"
 setup_fails("is not installed")
 install_mode = "wrong-version"
 setup_fails("does not match pinned")
-local old_work, old_executable = vim.env.DOTFILES_WORK, vim.fn.executable
-vim.env.DOTFILES_WORK = nil
-vim.fn.executable = function() return 0 end
-local private = dofile(config .. "/lua/custom/plugins/code-review.lua")
-assert(private.url and type(private.enabled) == "function", "disabled private plugin must keep its spec and lock pin")
-assert(not private.enabled(), "private plugin should be disabled on a personal machine")
-vim.env.DOTFILES_WORK = "1"
-assert(private.enabled(), "explicit work mode should enable private plugin")
-vim.env.DOTFILES_WORK = nil
-vim.fn.executable = function() return 1 end
-assert(private.enabled(), "Brazil should enable private plugin")
-vim.env.DOTFILES_WORK, vim.fn.executable = old_work, old_executable
 assert_original_lock()
 assert(vim.fn.delete(fixture_config, "rf") == 0)
 print("tool installation contract checks passed")

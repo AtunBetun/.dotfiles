@@ -10,7 +10,7 @@ Clone this repository, then run:
 ./init
 ```
 
-`init` selects the OS and installs mise v2026.11.0 only if absent. It loads the manifest to enforce mise's minimum version before installing prerequisites, then runs the native mise setup, editor setup and checks. An existing mise older than 2026.11.0 fails without being upgraded; update a corporate-managed installation through its approved channel. AL2 uses native mise archive downloads of Amazon-compatible Node binaries and a pinned Neovim source build; no legacy runtime plugins or wrappers. AL2023 uses native DNF packages. Mac apps use mise's native cask support. AL2's one `yum install` command remains because mise has no built-in yum manager.
+`init` selects the OS and installs mise v2026.11.0 only if absent. It loads the manifest to enforce mise's minimum version before installing prerequisites, then runs the native mise setup, editor setup and checks. Managed mise profiles enable automatic mise self-update; an existing older version may update when mise runs. Update a corporate-managed installation through its approved channel. AL2 uses native mise archive downloads of Amazon-compatible Node binaries and a pinned Neovim source build; no legacy runtime plugins or wrappers. AL2023 uses native DNF packages. Mac apps use mise's native cask support. AL2's one `yum install` command remains because mise has no built-in yum manager.
 
 The bootstrap prints the selected OS, profile, checkout and mise version, then shows native package status, package commands and the selected profile's tool versions before installation. Its plain-text progress bar counts completed stages, not elapsed time: each stage reports started, done or failed, followed by a summary. Native installer output and task timings remain visible, including sudo prompts. A failed command stops setup at that stage and preserves its exit code.
 
@@ -43,19 +43,21 @@ Use `mise -E al2` for those commands on AL2. `init` selects it automatically. To
 
 Defaults: Python 3.12.16, Go 1.25.5, Corretto Java 21.0.13, Rust 1.90.0, Herdr 0.9.5, Neovim 0.12.6. Node is 22.22.2 on Mac/AL2023 and 22.21.1 on AL2. AL2's native archive backends download Amazon-compatible Node binaries and Neovim source pinned to `022946c802832f938398dfae34b3f277ca9509d4`; Neovim builds against the host libc, and build failures fail installation. Artifact URLs and checksums live in the profile's lockfile. Projects can select other versions in their own `mise.toml`.
 
-No downloads/upgrades occur during shell/editor startup. `mise run install` installs the selected pinned profile before replacing live config. Linux builds the parser CLI against native Clang/LLVM because the published binary needs newer glibc than AL2023. Native `clang-devel`/`llvm-devel` supply the compatible library; `init` gets it from `llvm-config`.
+Pinned tools and editor plugins do not download or upgrade during shell/editor startup. Mise may update its own binary when invoked, subject to its self-update check interval (default: 7 days). `mise run install` installs the selected pinned profile before replacing live config. Linux builds the parser CLI against native Clang/LLVM because the published binary needs newer glibc than AL2023. Native `clang-devel`/`llvm-devel` supply the compatible library; `init` gets it from `llvm-config`.
+
+Zsh uses mise's shims directory on `PATH` instead of `mise activate`. Tool versions resolve when commands run, without running mise at startup or at every prompt. Project environment variables are not exported into the interactive shell: use `mise exec -- command` for commands that need them. Fzf loads the standard `~/.fzf/shell` scripts when installed, falling back to `fzf --zsh` otherwise; the fallback invokes mise when fzf is a shim.
 
 ## Herdr helpers
 
-Setup links only two scripts into `~/.local/bin` using mise's `symlink-each` deployment. To deploy just those links from this checkout, run `mise dot apply "$HOME/.local/bin"` (add `-E al2` on AL2):
+Setup links only two scripts into `~/.local/bin`. To deploy just those links from this checkout, run `mise dot apply "$HOME/.local/bin/herdr-sessionizer" "$HOME/.local/bin/hherd"` (add `-E al2` on AL2):
 
 ```sh
 herdr-sessionizer 'some/project'   # open/focus this directory
-herdr-sessionizer                  # pick beneath the current directory
+herdr-sessionizer                  # pick from home, work, personal, and workplace
 hherd work-host                    # attach using normal SSH
 ```
 
-No guessed project roots, usernames or workspace paths. The picker searches three levels under the current directory. It supports spaces; newline-containing names are outside its documented shortcut. Herdr binds it to `Ctrl-a f`. In a local Herdr client, `Ctrl-a s` (also `Ctrl-a w`) opens native workspace navigation across Local and saved SSH machines: use Up/Down and Enter to switch. Add another SSH machine with `herdr machine add HOST`. The separate `hherd HOST` client attaches to one remote session; use the local multi-machine client for switching between local and remote workspaces.
+The picker lists immediate child directories of `~/`, `~/work`, `~/personal`, `~/workplace`, and `/workplace/$(id -un)` when those roots exist. For each workplace child with a `src` directory, it also lists the directories directly inside `src`, as the older sessionizer did. It supports spaces; newline-containing names are outside its documented shortcut. Herdr binds it to `Ctrl-a f`. In a local Herdr client, `Ctrl-a s` (also `Ctrl-a w`) opens native workspace navigation across Local and saved SSH machines: use Up/Down and Enter to switch. Add another SSH machine with `herdr machine add HOST`. The separate `hherd HOST` client attaches to one remote session; use the local multi-machine client for switching between local and remote workspaces.
 
 `hherd` uses session `main`, or the explicit `TE` value when set, and server-side bindings. It adds no custom install, update or restart logic. Native Herdr remote may prompt to install or update the remote binary, or stop an incompatible server; those prompts default to no. Accepting a server stop can interrupt running sessions and their processes. Both helpers use mise's installed global tools, independent of the current project's configuration.
 

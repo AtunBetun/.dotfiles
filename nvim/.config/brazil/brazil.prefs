@@ -1,0 +1,6 @@
+[packagecache]
+cacheRoot = /Volumes/brazil-pkg-cache/
+
+[cli "bin"]
+
+node24x = /Users/adesain/.local/share/mise/installs/node/24.11.1/bin/node
