@@ -38,12 +38,17 @@ fi
 
 [[ -d $selected ]] || { printf 'herdr-sessionizer: not a directory: %s\n' "$selected" >&2; exit 1; }
 selected=$(cd -- "$selected" && pwd -P)
+name=${selected##*/}
+[[ -n $name ]] || name=/
 
-existing=$(herdr workspace list | jq -er --arg n "$selected" '
+existing=$(herdr workspace list | jq -er --arg path "$selected" --arg name "$name" '
     if (.result.workspaces | type) != "array" then error("Invalid workspace listing")
-    else [.result.workspaces[] | select(.label == $n) | .workspace_id][0] // "" end')
+    else .result.workspaces |
+        (map(select(.label == $path)) + map(select(.label == $name)))[0].workspace_id // ""
+    end')
 if [[ -n $existing ]]; then
+    herdr workspace rename "$existing" "$name" >/dev/null
     exec herdr workspace focus "$existing"
 else
-    exec herdr workspace create --cwd "$selected" --label "$selected" --focus
+    exec herdr workspace create --cwd "$selected" --label "$name" --focus
 fi
