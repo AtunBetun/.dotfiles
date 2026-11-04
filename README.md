@@ -47,6 +47,8 @@ Pinned tools and editor plugins do not download or upgrade during shell/editor s
 
 Zsh uses mise's shims directory on `PATH` instead of `mise activate`. Tool versions resolve when commands run, without running mise at startup or at every prompt. Project environment variables are not exported into the interactive shell: use `mise exec -- command` for commands that need them. Fzf loads the standard `~/.fzf/shell` scripts when installed, falling back to `fzf --zsh` otherwise; the fallback invokes mise when fzf is a shim.
 
+Fzf keeps Ctrl-R for history search and Alt-C for directory selection in both vi modes. On macOS, setup seeds Ghostty's config with `keybind = alt+c=esc:c` if the file is absent. Add that line to an existing Ghostty config to enable Option-C, then reload it with Cmd-Shift-comma.
+
 ## Herdr helpers
 
 Setup links only two scripts into `~/.local/bin`. To deploy just those links from this checkout, run `mise dot apply "$HOME/.local/bin/herdr-sessionizer" "$HOME/.local/bin/hherd"` (add `-E al2` on AL2):

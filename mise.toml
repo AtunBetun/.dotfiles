@@ -55,6 +55,12 @@ mode = "copy"
 create_if_missing = true
 variants = [{ os = "macos", target = "{% if (xdg_config_home ~ '/aerospace/aerospace.toml') is file %}{{ xdg_config_home }}/aerospace/aerospace.toml{% else %}~/.aerospace.toml{% endif %}" }]
 
+[dotfiles.ghostty]
+source = "macos/ghostty.config"
+mode = "copy"
+create_if_missing = true
+variants = [{ os = "macos", target = "~/Library/Application Support/com.mitchellh.ghostty/config.ghostty" }]
+
 [tasks.install]
 description = "Install pinned tools without changing live configuration"
 env = { MISE_CONFIG_DIR = "{{ config_root }}/tools/default", MISE_ENV = "", MISE_CEILING_PATHS = "{{ config_root }}" }

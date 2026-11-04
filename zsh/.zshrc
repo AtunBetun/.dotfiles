@@ -127,9 +127,11 @@ if [[ -t 0 && -t 1 ]] && (( $+functions[compdef] )) && command -v fzf &>/dev/nul
         source <(fzf --zsh)
     fi
 fi
-# fzf binds Ctrl-R in both maps; retain search in insert mode and vi redo.
-bindkey -M viins '^R' history-incremental-search-backward
-bindkey -M vicmd '^R' redo
+# Keep fzf's Ctrl-R binding in both vi modes when its integration is loaded.
+if (( ! ${+widgets[fzf-history-widget]} )); then
+    bindkey -M viins '^R' history-incremental-search-backward
+    bindkey -M vicmd '^R' redo
+fi
 
 # =====================
 # BASH COMPLETION SUPPORT
