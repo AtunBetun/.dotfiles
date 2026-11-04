@@ -55,7 +55,7 @@ herdr-sessionizer                  # pick beneath the current directory
 hherd work-host                    # attach using normal SSH
 ```
 
-No guessed project roots, usernames or workspace paths. The picker searches three levels under the current directory. It supports spaces; newline-containing names are outside its documented shortcut. Herdr binds it to `Ctrl-a f`; the native workspace picker is `Ctrl-a w`.
+No guessed project roots, usernames or workspace paths. The picker searches three levels under the current directory. It supports spaces; newline-containing names are outside its documented shortcut. Herdr binds it to `Ctrl-a f`. In a local Herdr client, `Ctrl-a s` (also `Ctrl-a w`) opens native workspace navigation across Local and saved SSH machines: use Up/Down and Enter to switch. Add another SSH machine with `herdr machine add HOST`. The separate `hherd HOST` client attaches to one remote session; use the local multi-machine client for switching between local and remote workspaces.
 
 `hherd` uses session `main`, or the explicit `TE` value when set, and server-side bindings. It adds no custom install, update or restart logic. Native Herdr remote may prompt to install or update the remote binary, or stop an incompatible server; those prompts default to no. Accepting a server stop can interrupt running sessions and their processes. Both helpers use mise's installed global tools, independent of the current project's configuration.
 

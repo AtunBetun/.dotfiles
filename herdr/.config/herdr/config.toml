@@ -7,7 +7,7 @@ auto_switch = false
 prefix = "ctrl+a"
 settings = "prefix+shift+s"
 goto = "prefix+g"
-workspace_picker = "prefix+w"
+workspace_picker = ["prefix+w", "prefix+s"]
 
 # Sessionizer: fuzzy-pick a project dir, focus-or-create its workspace.
 [[keys.command]]
