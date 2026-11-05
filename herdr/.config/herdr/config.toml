@@ -23,3 +23,6 @@ command = "~/.local/bin/herdr-sessionizer"
 description = "open project workspace"
 width = "80%"
 height = "80%"
+
+[terminal]
+kitty_graphics = true
