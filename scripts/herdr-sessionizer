@@ -13,8 +13,12 @@ else
     shopt -s nullglob dotglob
     roots=("$HOME" "$HOME/work" "$HOME/personal" "$HOME/workplace" "/workplace/$(id -un)")
     candidates=()
+    declare -A seen_roots=()
     for root in "${roots[@]}"; do
         [[ -d $root ]] || continue
+        resolved=$(cd -- "$root" && pwd -P)
+        [[ -z ${seen_roots[$resolved]:-} ]] || continue
+        seen_roots[$resolved]=1
         for directory in "$root"/*/; do
             [[ -d $directory ]] || continue
             candidates+=("${directory%/}")
