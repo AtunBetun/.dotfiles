@@ -24,5 +24,8 @@ description = "open project workspace"
 width = "80%"
 height = "80%"
 
+[ui.toast]
+delivery = "herdr"
+
 [terminal]
 kitty_graphics = true
