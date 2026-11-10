@@ -13,12 +13,20 @@ else
     shopt -s nullglob dotglob
     roots=("$HOME" "$HOME/work" "$HOME/personal" "$HOME/workplace" "/workplace/$(id -un)")
     candidates=()
-    declare -A seen_roots=()
+    # macOS still ships Bash 3.2, which has indexed arrays but no associative arrays.
+    seen_roots=()
     for root in "${roots[@]}"; do
         [[ -d $root ]] || continue
-        resolved=$(cd -- "$root" && pwd -P)
-        [[ -z ${seen_roots[$resolved]:-} ]] || continue
-        seen_roots[$resolved]=1
+        resolved=$(CDPATH= cd -- "$root" && pwd -P)
+        seen=false
+        for ((i = 0; i < ${#seen_roots[@]}; i++)); do
+            if [[ ${seen_roots[i]} == "$resolved" ]]; then
+                seen=true
+                break
+            fi
+        done
+        [[ $seen == false ]] || continue
+        seen_roots+=("$resolved")
         for directory in "$root"/*/; do
             [[ -d $directory ]] || continue
             candidates+=("${directory%/}")
@@ -41,7 +49,7 @@ else
 fi
 
 [[ -d $selected ]] || { printf 'herdr-sessionizer: not a directory: %s\n' "$selected" >&2; exit 1; }
-selected=$(cd -- "$selected" && pwd -P)
+selected=$(CDPATH= cd -- "$selected" && pwd -P)
 name=${selected##*/}
 [[ -n $name ]] || name=/
 
